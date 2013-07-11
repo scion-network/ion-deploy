@@ -38,7 +38,7 @@ case $ION_NAME in
   	export RABBITMQ_PASSWORD="RBT5t2G3"
 	export ES_HOST=elasticsearch.s.oceanobservatories.org
 	export GRAYLOG_HOST=elasticsearch.s.oceanobservatories.org
-	export PRELOAD_KEY="0ArzZOLNhEGVqdGpNTXI4bmZURU12cGd2VGxjQUlPOVE"
+	export PRELOAD_KEY="0Aq_8oD79eIi4dDBHVXlJczhjbDAxWGQ5cHdjaVVIRFE"
 	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=res/preload/r2_ioc/config/ooi_beta.yml path='https://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls'"
   	;;
   *)
