@@ -46,17 +46,14 @@ pip install -r $RUN_DIR/requirements/default.txt
 wget --no-check-certificate $COI_TAR
 tar -xf coi-*.tar.gz
 
-#DEBUG
-exit
-
 #################################
 #### Run any CLEANUP scripts ####
 #################################
 # Cleanup rabbitmq
-python clean_rabbit2.py -H $RABBITMQ_HOST -P 55672 -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD -V /
+#python clean_rabbit2.py -H $RABBITMQ_HOST -P 55672 -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD -V /
 
 # Clean elasticsearch indices
-curl -XDELETE "http://$ES_HOST:9200/"
+#curl -XDELETE "http://$ES_HOST:9200/"
 
 # Clean graylog2 indices (elasticsearch)
 #curl -XDELETE "http://$GRAYLOG_HOST:9200/graylog2"
@@ -72,6 +69,9 @@ cp logging-stage.yml $RUN_DIR/logging.yml
 echo "generate launch plan..."
 sed "s/REPLACE_WITH_COI_VERS/${COI_VERS}/g" nimbus-$ION_NAME.yml > $RUN_DIR/nimbus-static.yml
 $RUN_DIR/bin/generate-plan --logconfig $RUN_DIR/logging.yml --profile $RUN_DIR/nimbus-static.yml --rel $PYON_PATH/res/deploy/r2deploy.yml --launch $PYON_PATH/res/launch/$ION_NAME.yml $RUN_DIR/plans/$ION_NAME -f 
+
+#DEBUG
+exit
 
 # launch
 echo "launching ion system..."
