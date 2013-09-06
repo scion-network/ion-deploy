@@ -38,6 +38,23 @@ case $ION_NAME in
   	export RABBITMQ_PASSWORD="RBT5t2G3"
 	export ES_HOST=elasticsearch.s.oceanobservatories.org
 	export GRAYLOG_HOST=elasticsearch.s.oceanobservatories.org
+	export NAGIOS_HOST=nagios-sd.oceanobservatories.org
+        export SG_HOST=sg.s.oceanobservatories.org
+	export UX_HOST=ion-stage.oceanobservatories.org
+	export PRELOAD_KEY="0ArzZOLNhEGVqdEM0cF9wS0p6MzZmX2dmaTBwQkZ2ckE"
+	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=res/preload/r2_ioc/config/ooi_beta.yml path='https://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls'"
+  	;;
+  # ion-beta
+  beta)
+  	export RUN=R2_BETA_SYSTEM
+	export RABBITMQ_HOST=r01.b.oceanobservatories.org
+  	export RABBITMQ_USERNAME=ooistagermq
+  	export RABBITMQ_PASSWORD="RBT5t2G3"
+	export ES_HOST=elasticsearch.b.oceanobservatories.org
+	export GRAYLOG_HOST=logging.b.oceanobservatories.org
+	export NAGIOS_HOST=nagios-sd.oceanobservatories.org
+        export SG_HOST=sg.b.oceanobservatories.org
+	export UX_HOST=ion-beta.oceanobservatories.org
 	export PRELOAD_KEY="0ArzZOLNhEGVqdEM0cF9wS0p6MzZmX2dmaTBwQkZ2ckE"
 	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=res/preload/r2_ioc/config/ooi_beta.yml path='https://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls'"
   	;;

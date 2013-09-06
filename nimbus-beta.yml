@@ -1,0 +1,36 @@
+profile_type: nimbus-static
+iaas:
+  site: ooi.ucsd
+  key: Rvp3nHCI03zGRGoOrBO1n
+  secret: xj8LRHvNkLsNEeK5zqmS4VAnwDMwdbgqu3hcRwxNcX
+  url: https://nimbus-pl.oceanobservatories.org:8444
+  base-image: r2-worker
+  base-allocation: m1.xlarge
+  sshkeyname: ooi
+rabbitmq:
+  host: r01.b.oceanobservatories.org
+  username: ooistagermq
+  password: RBT5t2G3
+couchdb:
+  host: couchdb.b.oceanobservatories.org
+  username: ooiuser
+  password: 003y3C3Y3
+graylog:
+  host: logging.b.oceanobservatories.org
+zookeeper:
+  hosts: [zk01.b.oceanobservatories.org,zk02.b.oceanobservatories.org,zk03.b.oceanobservatories.org]
+  enabled: true
+
+# Package versions
+packages:
+   coi_services: http://sddevrepo.oceanobservatories.org/releases/REPLACE_WITH_COI_VERS
+#  coi_services: http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master-0.1.7.tar.gz
+# if desired, include a list of hostnames here which will be DDNS-assigned
+# to the service gateway VMs. Ensure you have at least as many hostnames
+# as there will ever be VMs.
+gateway_ddns_hosts:
+  - sg01.b.oceanobservatories.org
+  - sg02.b.oceanobservatories.org
+  - sg03.b.oceanobservatories.org
+  - sg04.b.oceanobservatories.org
+pyon_config_output: /home/jenkins/workspace/ION_Beta/coi-services/res/config/pyon.local.yml

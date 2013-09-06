@@ -83,4 +83,11 @@ echo "bootstrap elastic search..."
 cd $PYON_PATH
 bin/pycc -D -x ion.processes.bootstrap.index_bootstrap.IndexBootStrap op='clean_bootstrap'
 
+#### clear policy cachecurl
+$SG_HOST:5000/ion-service/system_management/reset_policy_cache
+
 #### Add nagios nodes
+ssh $NAGIOS_HOST "sudo /root/bin/add-ion-nodes.sh ion-beta"
+
+#### Enable ion-ux
+ssh -t $UX_HOST "sudo /www/ux-maintenance.sh online"

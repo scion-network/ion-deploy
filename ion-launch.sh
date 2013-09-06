@@ -46,6 +46,9 @@ pip install -r $RUN_DIR/requirements/default.txt
 wget --no-check-certificate $COI_TAR
 tar -xf coi-*.tar.gz
 
+#DEBUG
+exit
+
 #################################
 #### Run any CLEANUP scripts ####
 #################################
@@ -56,8 +59,10 @@ python clean_rabbit2.py -H $RABBITMQ_HOST -P 55672 -u $RABBITMQ_USERNAME -p $RAB
 curl -XDELETE "http://$ES_HOST:9200/"
 
 # Clean graylog2 indices (elasticsearch)
-curl -XDELETE "http://$GRAYLOG_HOST:9200/graylog2"
+#curl -XDELETE "http://$GRAYLOG_HOST:9200/graylog2"
 # echo build number
+
+# log build number
 echo https://github.com/ooici/coi-services/commit/`cat $PYON_PATH/.gitcommit` > $BUILD_LOG/build-number
 
 # copy logging.yml to rundir
@@ -89,4 +94,11 @@ echo "bootstrap elastic search..."
 cd $PYON_PATH
 bin/pycc -D -x ion.processes.bootstrap.index_bootstrap.IndexBootStrap op='clean_bootstrap'
 
+#### clear policy cache
+curl $SG_HOST:5000/ion-service/system_management/reset_policy_cache
+
 #### Add nagios nodes
+ssh $NAGIOS_HOST "sudo /root/bin/add-ion-nodes.sh ion-beta"
+
+#### Enable ion-ux
+ssh -t $UX_HOST "sudo /www/ux-maintenance.sh online"
