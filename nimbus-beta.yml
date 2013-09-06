@@ -3,7 +3,7 @@ iaas:
   site: ooi.ucsd
   key: Rvp3nHCI03zGRGoOrBO1n
   secret: xj8LRHvNkLsNEeK5zqmS4VAnwDMwdbgqu3hcRwxNcX
-  url: https://nimbus-pl.oceanobservatories.org:8444
+  url: https://nimbus-prod.oceanobservatories.org:8444
   base-image: r2-worker
   base-allocation: m1.xlarge
   sshkeyname: ooi
