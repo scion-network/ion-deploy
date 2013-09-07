@@ -33,4 +33,4 @@ gateway_ddns_hosts:
   - sg02.b.oceanobservatories.org
   - sg03.b.oceanobservatories.org
   - sg04.b.oceanobservatories.org
-pyon_config_output: /home/jenkins/workspace/ION_Beta/coi-services/res/config/pyon.local.yml
+pyon_config_output: /var/jenkins/workspace/ION_Beta/coi-services/res/config/pyon.local.yml

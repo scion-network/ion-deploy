@@ -63,7 +63,7 @@ curl -XDELETE "http://$ES_HOST:9200/"
 echo https://github.com/ooici/coi-services/commit/`cat $PYON_PATH/.gitcommit` > $BUILD_LOG/build-number
 
 # copy logging.yml to rundir
-cp logging-stage.yml $RUN_DIR/logging.yml
+cp logging-$ION_NAME.yml $RUN_DIR/logging.yml
 
 # generate pyon launch levels
 echo "generate launch plan..."
