@@ -50,10 +50,10 @@ tar -xf coi-*.tar.gz
 #### Run any CLEANUP scripts ####
 #################################
 # Cleanup rabbitmq
-#python clean_rabbit2.py -H $RABBITMQ_HOST -P 55672 -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD -V /
+python clean_rabbit2.py -H $RABBITMQ_HOST -P 55672 -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD -V /
 
 # Clean elasticsearch indices
-#curl -XDELETE "http://$ES_HOST:9200/"
+curl -XDELETE "http://$ES_HOST:9200/"
 
 # Clean graylog2 indices (elasticsearch)
 #curl -XDELETE "http://$GRAYLOG_HOST:9200/graylog2"
@@ -69,9 +69,6 @@ cp logging-stage.yml $RUN_DIR/logging.yml
 echo "generate launch plan..."
 sed "s/REPLACE_WITH_COI_VERS/${COI_VERS}/g" nimbus-$ION_NAME.yml > $RUN_DIR/nimbus-static.yml
 $RUN_DIR/bin/generate-plan --logconfig $RUN_DIR/logging.yml --profile $RUN_DIR/nimbus-static.yml --rel $PYON_PATH/res/deploy/r2deploy.yml --launch $PYON_PATH/res/launch/$ION_NAME.yml $RUN_DIR/plans/$ION_NAME -f 
-
-#DEBUG
-exit
 
 # launch
 echo "launching ion system..."
@@ -90,15 +87,18 @@ if [ $? != 0 ]; then
 fi
 
 #### bootstrap elastic search
-echo "bootstrap elastic search..."
+echo "Bootstrap elastic search..."
 cd $PYON_PATH
 bin/pycc -D -x ion.processes.bootstrap.index_bootstrap.IndexBootStrap op='clean_bootstrap'
 
 #### clear policy cache
+echo "Clear policy cache"
 curl $SG_HOST:5000/ion-service/system_management/reset_policy_cache
 
 #### Add nagios nodes
+echo "Add nagios nodes"
 ssh $NAGIOS_HOST "sudo /root/bin/add-ion-nodes.sh ion-beta"
 
 #### Enable ion-ux
+echo "Enable ion-ux"
 ssh -t $UX_HOST "sudo /www/ux-maintenance.sh online"
