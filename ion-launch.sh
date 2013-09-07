@@ -72,7 +72,7 @@ $RUN_DIR/bin/generate-plan --logconfig $RUN_DIR/logging.yml --profile $RUN_DIR/n
 
 # launch
 echo "launching ion system..."
-cloudinitd boot -vvv $RUN_DIR/plans/stage/launch.conf -n $RUN
+cloudinitd boot -vvv $RUN_DIR/plans/$ION_NAME/launch.conf -n $RUN
 # get process list
 sleep 15
 ceictl -n $RUN process list > $BUILD_LOG/process-list
