@@ -22,9 +22,6 @@ export LAUNCH_HOME=`pwd`
 export LAUNCH_PLANS=`pwd`/launch-plans
 export RUN_DIR=$LAUNCH_PLANS/R2
 export BUILD_LOG=./logs/$DATE
-export COI_TAR=`ssh buildbot-runner@buildbot "cat ~/bbot/bot_scripts/nimbus-static.yml | grep coi_services | sed 's/^ *coi_services: *//'"`
-#export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master.tar.gz"
-export COI_VERS=`echo $COI_TAR | awk -F"/" '{print $5}'`
 export PYON_PATH=$LAUNCH_HOME/coi-services
 export PYON_CONFIG_FILE=$PYON_PATH/res/config/pyon.local.yml
 
@@ -41,6 +38,8 @@ case $ION_NAME in
 	export NAGIOS_HOST=nagios-sd.oceanobservatories.org
         export SG_HOST=sg.s.oceanobservatories.org
 	export UX_HOST=ion-stage.oceanobservatories.org
+	export COI_VERS="2.0.64"
+	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master-$COI_VERS.tar.gz"
 	export PRELOAD_KEY="0ArzZOLNhEGVqdEM0cF9wS0p6MzZmX2dmaTBwQkZ2ckE"
 	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=res/preload/r2_ioc/config/ooi_beta.yml path='https://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls'"
   	;;
@@ -55,6 +54,8 @@ case $ION_NAME in
 	export NAGIOS_HOST=nagios-sd.oceanobservatories.org
         export SG_HOST=sg.b.oceanobservatories.org
 	export UX_HOST=ion-beta.oceanobservatories.org
+	export COI_VERS="2.0.64"
+	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master-$COI_VERS.tar.gz"
 	export PRELOAD_KEY="0ArzZOLNhEGVqdHhzTWtGRkZUWVZVVllsNENhRWNCM1E"
 	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=res/preload/r2_ioc/config/ooi_beta.yml path='https://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls'"
   	;;
