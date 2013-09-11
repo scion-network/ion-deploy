@@ -2,17 +2,27 @@
 ##################################################################################
 # ion-launch.sh
 #
-# This script launches the ION system.  
+# This script launches or relaunches the ION system.  A "launch" includes running
+# preload, while "relaunch" does not  
 #
 ##################################################################################
 
 # Usage
-if [ "$1" == "" ]; then
-  echo "Usage: $0 [ion-name]"
-  exit
+usage () {
+  echo "Usage: $0 [launch|relaunch] [ion-name]"
+}
+if [ "$2" == "" ]; then
+  usage
+  exit 1
 fi
-
-ION_NAME=$1
+if [ "$1" == "launch" ] || [ "$1" == "relaunch" ]; then
+  LAUNCH_TYPE=$1
+  ION_NAME=$2
+  echo "Executing $LAUNCH_TYPE of ION system $ION_NAME"
+else
+  usage
+  exit 1
+fi
 
 # Source ENV
 source ./build-env.sh $ION_NAME
@@ -49,15 +59,13 @@ tar -xf coi-*.tar.gz
 #################################
 #### Run any CLEANUP scripts ####
 #################################
-# Cleanup rabbitmq
-python clean_rabbit2.py -H $RABBITMQ_HOST -P 55672 -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD -V /
+if [ "$LAUNCH_TYPE" == "launch" ]; then
+  # Cleanup rabbitmq
+  python clean_rabbit2.py -H $RABBITMQ_HOST -P 55672 -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD -V /
+fi
 
 # Clean elasticsearch indices
 curl -XDELETE "http://$ES_HOST:9200/"
-
-# Clean graylog2 indices (elasticsearch)
-#curl -XDELETE "http://$GRAYLOG_HOST:9200/graylog2"
-# echo build number
 
 # log build number
 echo https://github.com/ooici/coi-services/commit/`cat $PYON_PATH/.gitcommit` > $BUILD_LOG/build-number
@@ -71,19 +79,26 @@ sed "s/REPLACE_WITH_COI_VERS/${COI_VERS}/g" nimbus-$ION_NAME.yml > $RUN_DIR/nimb
 $RUN_DIR/bin/generate-plan --logconfig $RUN_DIR/logging.yml --profile $RUN_DIR/nimbus-static.yml --rel $PYON_PATH/res/deploy/r2deploy.yml --launch $PYON_PATH/res/launch/$ION_NAME.yml $RUN_DIR/plans/$ION_NAME -f 
 
 # launch
-echo "launching ion system..."
-cloudinitd boot -vvv $RUN_DIR/plans/$ION_NAME/launch.conf -n $RUN
+if [ "$LAUNCH_TYPE" == "launch" ]; then
+  echo "launching ion system..."
+  cloudinitd boot -vvv $RUN_DIR/plans/$ION_NAME/launch.conf -n $RUN
+else
+  echo "re-launching ion system..."
+  cloudinitd boot -vvv $RUN_DIR/plans/$ION_NAME/restart.conf -n $RUN
+fi
 # get process list
 sleep 15
 ceictl -n $RUN process list > $BUILD_LOG/process-list
 
 #### preload
-echo "Running preload..."
-cd $PYON_PATH
-$PRELOAD
-if [ $? != 0 ]; then
-  echo "Preload failed"
-  exit 1
+if [ "$LAUNCH_TYPE" == "launch" ]; then
+  echo "Running preload..."
+  cd $PYON_PATH
+  $PRELOAD
+  if [ $? != 0 ]; then
+    echo "Preload failed"
+    exit 1
+  fi
 fi
 
 #### bootstrap elastic search
