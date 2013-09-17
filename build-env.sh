@@ -54,7 +54,7 @@ case $ION_NAME in
 	export NAGIOS_HOST=nagios-sd.oceanobservatories.org
         export SG_HOST=sg.b.oceanobservatories.org
 	export UX_HOST=ion-beta.oceanobservatories.org
-	export COI_VERS="2.0.64"
+	export COI_VERS="2.0.67"
 	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master-$COI_VERS.tar.gz"
 	export PRELOAD_KEY="0ArzZOLNhEGVqdHhzTWtGRkZUWVZVVllsNENhRWNCM1E"
 	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=res/preload/r2_ioc/config/ooi_beta.yml path='https://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls'"
