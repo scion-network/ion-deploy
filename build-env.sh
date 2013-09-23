@@ -35,12 +35,12 @@ case $ION_NAME in
   	export RABBITMQ_PASSWORD="RBT5t2G3"
 	export ES_HOST=elasticsearch.s.oceanobservatories.org
 	export GRAYLOG_HOST=elasticsearch.s.oceanobservatories.org
-	export NAGIOS_HOST=nagios-sd.oceanobservatories.org
+	export NAGIOS_HOST=nagios-pl.oceanobservatories.org
         export SG_HOST=sg.s.oceanobservatories.org
 	export UX_HOST=ion-stage.oceanobservatories.org
-	export COI_VERS="2.0.64"
-	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master-$COI_VERS.tar.gz"
-	export PRELOAD_KEY="0ArzZOLNhEGVqdEM0cF9wS0p6MzZmX2dmaTBwQkZ2ckE"
+	export COI_VERS="2.0.67"
+	export COI_TAR="http://plrepo.oceanobservatories.org/releases/coi-services-ooici-master-$COI_VERS.tar.gz"
+	export PRELOAD_KEY="0ArzZOLNhEGVqdHhzTWtGRkZUWVZVVllsNENhRWNCM1E"
 	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=res/preload/r2_ioc/config/ooi_beta.yml path='https://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls'"
   	;;
   # ion-beta
