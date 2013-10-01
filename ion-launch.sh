@@ -75,7 +75,13 @@ cp logging-$ION_NAME.yml $RUN_DIR/logging.yml
 
 # generate pyon launch levels
 echo "generate launch plan..."
-sed "s/REPLACE_WITH_COI_VERS/${COI_VERS}/g" nimbus-$ION_NAME.yml > $RUN_DIR/nimbus-static.yml
+sed -e \
+ "s/REPLACE_WITH_COI_VERS/${COI_VERS}/g;\
+ s/REPLACE_WITH_DTDATA_VERS/${DTDATA_VERS}/g;\
+ s/REPLACE_WITH_EPU_VERS/${EPU_VERS}/g;\
+ s/REPLACE_WITH_EPUAGENT_VERS/${EPUAGENT_VERS}/g"\
+ nimbus-$ION_NAME.yml > $RUN_DIR/nimbus-static.yml
+
 $RUN_DIR/bin/generate-plan --logconfig $RUN_DIR/logging.yml --profile $RUN_DIR/nimbus-static.yml --rel $PYON_PATH/res/deploy/r2deploy.yml --launch $PYON_PATH/res/launch/$ION_NAME.yml $RUN_DIR/plans/$ION_NAME -f 
 
 # launch

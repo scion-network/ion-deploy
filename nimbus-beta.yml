@@ -23,8 +23,11 @@ zookeeper:
 
 # Package versions
 packages:
-   coi_services: http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master-REPLACE_WITH_COI_VERS.tar.gz
-#  coi_services: http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master-0.1.7.tar.gz
+  coi_services: http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-REPLACE_WITH_COI_VERS.tar.gz
+  dt_data: http://sddevrepo.oceanobservatories.org/releases/dt-data-ooici-REL2.0-REPLACE_WITH_DTDATA_VERS.tar.gz
+  epu: http://sddevrepo.oceanobservatories.org/releases/epu-venv-ooici-REL2.0-REPLACE_WITH_EPU_VERS.tar.gz
+  epuagent: http://sddevrepo.oceanobservatories.org/releases/epuagent-venv-ooici-REL2.0-REPLACE_WITH_EPUAGENT_VERS.tar.gz
+
 # if desired, include a list of hostnames here which will be DDNS-assigned
 # to the service gateway VMs. Ensure you have at least as many hostnames
 # as there will ever be VMs.
