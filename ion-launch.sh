@@ -123,3 +123,8 @@ ssh $NAGIOS_HOST "sudo /root/bin/add-ion-nodes.sh ion-beta"
 #### Enable ion-ux
 echo "Enable ion-ux"
 ssh -t $UX_HOST "sudo /www/ux-maintenance.sh online"
+
+#### Enable pyon mx
+echo "Start pyon mx"
+cd $PYON_PATH
+bin/pycc -D -n -o --mx &> /dev/null &
