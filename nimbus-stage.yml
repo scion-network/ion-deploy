@@ -36,4 +36,16 @@ gateway_ddns_hosts:
   - sg02.s.oceanobservatories.org
   - sg03.s.oceanobservatories.org
   - sg04.s.oceanobservatories.org
+  - sg05.s.oceanobservatories.org
+  - sg06.s.oceanobservatories.org
+  - sg07.s.oceanobservatories.org
+  - sg08.s.oceanobservatories.org
+  - sg09.s.oceanobservatories.org
+  - sg10.s.oceanobservatories.org
+  - sg11.s.oceanobservatories.org
+  - sg12.s.oceanobservatories.org
+  - sg13.s.oceanobservatories.org
+  - sg14.s.oceanobservatories.org
+  - sg15.s.oceanobservatories.org
+  - sg16.s.oceanobservatories.org
 pyon_config_output: /var/lib/jenkins/jobs/ION_stage/workspace/coi-services/res/config/pyon.local.yml
