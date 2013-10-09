@@ -28,7 +28,7 @@ if [ -e $HOME/.cloudinitd/cloudinitd-$RUN.db ]; then
 
     # remove nodes from nagios
     echo "Removing nagios nodes..."
-    ssh $NAGIOS_HOST "sudo /root/bin/remove-ion-nodes.sh ion-beta"
+    ssh $NAGIOS_HOST "sudo /root/bin/remove-ion-nodes.sh ion-${ION_NAME}"
 
     # terminate ION system
     echo "Terminating ${ION_NAME}..."
