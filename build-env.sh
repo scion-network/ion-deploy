@@ -61,7 +61,7 @@ case $ION_NAME in
 	export DTDATA_VERS="2.0.0"
 	export EPU_VERS="2.0.1"
 	export EPUAGENT_VERS="2.0.2"
-	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master-$COI_VERS.tar.gz"
+	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-$COI_VERS.tar.gz"
 	export PRELOAD_KEY="0ArzZOLNhEGVqdDBVSF9yZXhGV1NqZ0FkZG9pNWJydFE"
 	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=res/preload/r2_ioc/config/ooi_beta.yml path='https://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls'"
   	;;
