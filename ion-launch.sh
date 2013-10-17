@@ -119,7 +119,7 @@ curl $SG_HOST:5000/ion-service/system_management/reset_policy_cache
 
 #### Add nagios nodes
 echo "Add nagios nodes"
-ssh $NAGIOS_HOST "sudo /root/bin/add-ion-nodes.sh ion-beta"
+ssh $NAGIOS_HOST "sudo /root/bin/add-ion-nodes.sh ion-${ION_NAME}"
 
 #### Enable ion-ux
 echo "Enable ion-ux"
