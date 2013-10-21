@@ -74,7 +74,7 @@ execution_engines:
     replicas: 4
     slots: 25
   service_gateway:
-    base_need: 16
+    base_need: 4
     config:
       unique_key: ddns_hostname
       unique_values: ${gateway_ddns_hosts}
@@ -164,7 +164,7 @@ apps:
     ha:
       policy: npreserving
       parameters:
-        preserve_n: 16
+        preserve_n: 4
         node_exclusive: service_gateway
         execution_engine_id: service_gateway
 
@@ -173,6 +173,6 @@ apps:
     ha:
       policy: npreserving
       parameters:
-        preserve_n: 16
+        preserve_n: 4
         node_exclusive: pydap
         execution_engine_id: service_gateway
