@@ -159,24 +159,6 @@ apps:
         parameters:
           preserve_n: 1
 
-  # gateway uses special engine
-  service_gateway:
-    ha:
-      policy: npreserving
-      parameters:
-        preserve_n: 4
-        node_exclusive: service_gateway
-        execution_engine_id: service_gateway
-
-  # lightweight_pydap uses special engine
-  lightweight_pydap:
-    ha:
-      policy: npreserving
-      parameters:
-        preserve_n: 4
-        node_exclusive: pydap
-        execution_engine_id: service_gateway
-
   #Bump up the work intensive guys from UI
   resource_registry:
     ha:
@@ -208,3 +190,21 @@ apps:
         policy: npreserving
         parameters:
           preserve_n: 30
+  # gateway uses special engine
+  service_gateway:
+    ha:
+      policy: npreserving
+      parameters:
+        preserve_n: 4
+        node_exclusive: service_gateway
+        execution_engine_id: service_gateway
+
+  # lightweight_pydap uses special engine
+  lightweight_pydap:
+    ha:
+      policy: npreserving
+      parameters:
+        preserve_n: 4
+        node_exclusive: pydap
+        execution_engine_id: service_gateway
+
