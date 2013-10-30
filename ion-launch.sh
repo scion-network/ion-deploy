@@ -131,4 +131,4 @@ ssh -t $UX_HOST "sudo /www/ux-maintenance.sh online"
 #### Enable pyon mx
 echo "Start pyon mx"
 cd $PYON_PATH
-bin/pycc -D -n -o --mx &> /dev/null &
+bin/pycc -D -n -o --mx container.containerui.association_graph=False &>/dev/null &
