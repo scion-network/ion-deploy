@@ -62,6 +62,8 @@ tar -xf coi-*.tar.gz
 if [ "$LAUNCH_TYPE" == "launch" ]; then
   # Cleanup rabbitmq
   python clean_rabbit2.py -H $RABBITMQ_HOST -P 55672 -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD -V /
+  # Cleanup erddap cache
+  ssh $ERDDAP_HOST "sudo ~/bin/clean-erddap.sh"
 fi
 
 # Clean elasticsearch indices
