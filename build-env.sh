@@ -39,12 +39,12 @@ case $ION_NAME in
 	export NAGIOS_HOST=nagios-pl.oceanobservatories.org
         export SG_HOST=sg.s.oceanobservatories.org
 	export UX_HOST=ooin.oceanobservatories.org
-	export COI_VERS="2.0.78"
+	export COI_VERS="2.0.81"
 	export DTDATA_VERS="2.0.0"
 	export EPU_VERS="2.0.1"
 	export EPUAGENT_VERS="2.0.2"
 	export COI_TAR="http://plrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-$COI_VERS.tar.gz"
-	export PRELOAD_KEY="0ArzZOLNhEGVqdF84NjVONFRKX3JscVY5azJzc0tBaFE"
+	export PRELOAD_KEY="0ArzZOLNhEGVqdGtXR0xJSnhPTFV5dDFwOXY4WmNtZUE"
         export ASSET_MAP_KEY="0ArzZOLNhEGVqdFp2MnNNMTFSQS0yMUlVYmtBSTFVdXc"
 	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader assets=res/preload/r2_ioc/ooi_assets cfg=res/preload/r2_ioc/config/ooi_beta.yml path='http://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls' assetmappings='http://docs.google.com/spreadsheet/pub?key=${ASSET_MAP_KEY}&output=xls'"
   	;;
@@ -60,12 +60,12 @@ case $ION_NAME in
 	export NAGIOS_HOST=nagios-sd.oceanobservatories.org
         export SG_HOST=sg.b.oceanobservatories.org
 	export UX_HOST=ion-beta.oceanobservatories.org
-	export COI_VERS="2.0.78"
+	export COI_VERS="2.0.81"
 	export DTDATA_VERS="2.0.0"
 	export EPU_VERS="2.0.1"
 	export EPUAGENT_VERS="2.0.2"
 	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-$COI_VERS.tar.gz"
-	export PRELOAD_KEY="0ArzZOLNhEGVqdF84NjVONFRKX3JscVY5azJzc0tBaFE"
+	export PRELOAD_KEY="0ArzZOLNhEGVqdGtXR0xJSnhPTFV5dDFwOXY4WmNtZUE"
         export ASSET_MAP_KEY="0ArzZOLNhEGVqdFp2MnNNMTFSQS0yMUlVYmtBSTFVdXc"
 	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader assets=res/preload/r2_ioc/ooi_assets cfg=res/preload/r2_ioc/config/ooi_beta.yml path='http://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls' assetmappings='http://docs.google.com/spreadsheet/pub?key=${ASSET_MAP_KEY}&output=xls'"
   	;;
