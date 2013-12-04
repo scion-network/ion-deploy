@@ -40,7 +40,7 @@ case $ION_NAME in
         export SG_HOST=sg.s.oceanobservatories.org
 	export UX_HOST=ooin.oceanobservatories.org
 	export COI_VERS="2.0.81"
-	export DTDATA_VERS="2.0.0"
+	export DTDATA_VERS="2.0.1"
 	export EPU_VERS="2.0.1"
 	export EPUAGENT_VERS="2.0.2"
 	export COI_TAR="http://plrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-$COI_VERS.tar.gz"
@@ -61,7 +61,7 @@ case $ION_NAME in
         export SG_HOST=sg.b.oceanobservatories.org
 	export UX_HOST=ion-beta.oceanobservatories.org
 	export COI_VERS="2.0.81"
-	export DTDATA_VERS="2.0.0"
+	export DTDATA_VERS="2.0.1"
 	export EPU_VERS="2.0.1"
 	export EPUAGENT_VERS="2.0.2"
 	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-$COI_VERS.tar.gz"
