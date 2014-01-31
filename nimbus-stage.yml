@@ -11,10 +11,11 @@ rabbitmq:
   host: r01.s.oceanobservatories.org
   username: ooistagermq
   password: RBT5t2G3
-couchdb:
-  host: couchdb.s.oceanobservatories.org
-  username: ooiuser
+postgres:
+  host: pg.s.oceanobservatories.org
   password: 003y3C3Y3
+  admin_username: ooiuser
+  admin_password: 003y3C3Y3
 graylog:
   host: logging.s.oceanobservatories.org
 zookeeper:

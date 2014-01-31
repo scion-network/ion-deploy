@@ -39,7 +39,7 @@ case $ION_NAME in
 	export NAGIOS_HOST=nagios-pl.oceanobservatories.org
         export SG_HOST=sg.s.oceanobservatories.org
 	export UX_HOST=ooin.oceanobservatories.org
-	export COI_VERS="2.0.88"
+	export COI_VERS="2.1.0"
 	export DTDATA_VERS="2.0.1"
 	export EPU_VERS="2.0.1"
 	export EPUAGENT_VERS="2.0.2"
