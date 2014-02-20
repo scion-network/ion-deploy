@@ -33,7 +33,6 @@ case $ION_NAME in
 	export RABBITMQ_HOST=r01.s.oceanobservatories.org
   	export RABBITMQ_USERNAME=ooistagermq
   	export RABBITMQ_PASSWORD="RBT5t2G3"
-	export ES_HOST=elasticsearch.s.oceanobservatories.org
 	export ERDDAP_HOST=erddap.s.oceanobservatories.org
 	export GRAYLOG_HOST=elasticsearch.s.oceanobservatories.org
 	export NAGIOS_HOST=nagios-pl.oceanobservatories.org
@@ -54,7 +53,6 @@ case $ION_NAME in
 	export RABBITMQ_HOST=r01.b.oceanobservatories.org
   	export RABBITMQ_USERNAME=ooistagermq
   	export RABBITMQ_PASSWORD="RBT5t2G3"
-	export ES_HOST=elasticsearch.b.oceanobservatories.org
 	export ERDDAP_HOST=erddap.b.oceanobservatories.org
 	export GRAYLOG_HOST=logging.b.oceanobservatories.org
 	export NAGIOS_HOST=nagios-sd.oceanobservatories.org

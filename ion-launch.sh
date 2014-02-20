@@ -66,9 +66,6 @@ if [ "$LAUNCH_TYPE" == "launch" ]; then
   ssh $ERDDAP_HOST "sudo ~/bin/clean-erddap.sh"
 fi
 
-# Clean elasticsearch indices
-curl -XDELETE "http://$ES_HOST:9200/"
-
 # log build number
 echo https://github.com/ooici/coi-services/commit/`cat $PYON_PATH/.gitcommit` > $BUILD_LOG/build-number
 
@@ -110,11 +107,6 @@ if [ "$LAUNCH_TYPE" == "launch" ]; then
     exit 1
   fi
 fi
-
-#### bootstrap elastic search
-echo "Bootstrap elastic search..."
-cd $PYON_PATH
-bin/pycc -D -x ion.processes.bootstrap.index_bootstrap.IndexBootStrap op='clean_bootstrap'
 
 #### clear policy cache
 echo "Clear policy cache"
