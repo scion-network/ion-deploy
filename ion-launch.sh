@@ -72,6 +72,10 @@ echo https://github.com/ooici/coi-services/commit/`cat $PYON_PATH/.gitcommit` > 
 # copy logging.yml to rundir
 cp logging-$ION_NAME.yml $RUN_DIR/logging.yml
 
+### TEMP
+wget -O $PYON_PATH/extern/pyon/pyon/core/interfaces/interfaces.py https://raw2.github.com/mmeisinger/pyon/fix692_dir_r2/pyon/core/interfaces/interfaces.py
+### TEMP
+
 # generate pyon launch levels
 echo "generate launch plan..."
 sed -e \
