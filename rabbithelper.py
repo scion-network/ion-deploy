@@ -1,18 +1,16 @@
 #!/usr/bin/python
 
-from rabbitmqadmin import Management, make_parser, LISTABLE, DELETABLE
+from rabbitmqadmin import Management, LISTABLE, DELETABLE
 import shlex
 import simplejson
 
 class RabbitManagementHelper(object):
-    def __init__(self, parser, options):
-        self.parser = parser
+    def __init__(self, options):
         self.options = options
 
     def list_names(self, listable_type):
-        list_str = '%s list %s name' % (self.options, listable_type)
-        (options, args) = self.parser.parse_args(shlex.split(list_str))
-        mgmt = Management(options, args[1:])
+        list_str = '%s name' % listable_type
+        mgmt = Management(self.options, shlex.split(list_str))
         uri = mgmt.list_show_uri(LISTABLE, 'list', mgmt.args[1:])
         output_json = mgmt.get(uri)
         listables = simplejson.loads(output_json)
@@ -29,14 +27,13 @@ class RabbitManagementHelper(object):
                 # Do not delete builtin exchanges
                 if deletable_type == 'exchange' and d['name'].startswith('amq.'):
                         continue
-                delete_cmd = '%s delete %s name="%s"' % (self.options, deletable_type, d['name'])
-                (options, args) = self.parser.parse_args(shlex.split(delete_cmd))
-                mgmt = Management(options, args[1:])
+                delete_cmd = '%s name="%s"' % (deletable_type, d['name'])
+                mgmt = Management(self.options, shlex.split(delete_cmd))
                 mgmt.invoke_delete()
                 deleted.append(d['name'])
         return deleted
 
-def clean_by_sysname(connect_string, sysname):
+def clean_by_sysname(options, sysname):
     """
     Utility method to clean sysname-prefixed exchanges and queues on a broker.
 
@@ -47,7 +44,8 @@ def clean_by_sysname(connect_string, sysname):
                             deleted.
     @returns                A 2-tuple of (list of exchanges deleted, list of queues deleted).
     """
-    rmh               = RabbitManagementHelper(make_parser(), connect_string)
+
+    rmh               = RabbitManagementHelper(options)
 
     exchanges         = rmh.list_names('exchanges')
     deleted_exchanges = rmh.delete_names_with_prefix('exchange', exchanges, sysname)
