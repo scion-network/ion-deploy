@@ -25,6 +25,9 @@ export BUILD_LOG=./logs/$DATE
 export PYON_PATH=$LAUNCH_HOME/coi-services
 export PYON_CONFIG_FILE=$PYON_PATH/res/config/pyon.local.yml
 
+# Need to set this for Jenkins so mx can start
+export BUILD_ID=
+
 ### Set env based on ion system
 case $ION_NAME in 
   # ion-stage
