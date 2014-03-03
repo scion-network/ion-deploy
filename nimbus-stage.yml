@@ -25,7 +25,7 @@ zookeeper:
 # Package versions
 packages:
   coi_services: http://plrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-REPLACE_WITH_COI_VERS.tar.gz
-  dt_data: http://plrepo.oceanobservatories.org/releases/dt-data-ooici-REL2.0-REPLACE_WITH_DTDATA_VERS.tar.gz
+  dt_data: http://plrepo.oceanobservatories.org/releases/dt-data-ooici-master.tar.gz
   epu: http://plrepo.oceanobservatories.org/releases/epu-venv-ooici-REL2.0-REPLACE_WITH_EPU_VERS.tar.gz
   epuagent: http://plrepo.oceanobservatories.org/releases/epuagent-venv-ooici-REL2.0-REPLACE_WITH_EPUAGENT_VERS.tar.gz
 
