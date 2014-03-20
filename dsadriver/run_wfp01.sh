@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 cd ..
 
 echo 'Load WFP01'
