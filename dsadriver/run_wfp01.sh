@@ -7,10 +7,12 @@ bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=dsadriver/wfp_all01
 
 echo 'Configure 3-Wavelength Fluorometer on Wire-Following Profiler - Coastal Pioneer Upstream Inshore'
 bin/pycc -x ion.agents.agentctrl.AgentControl instrument='3-Wavelength Fluorometer on Wire-Following Profiler - Coastal Pioneer Upstream Inshore' op=config_instance cfg=dsadriver/ai_configs_production.csv
+bin/pycc -x ion.agents.agentctrl.AgentControl instrument='3-Wavelength Fluorometer on Wire-Following Profiler - Coastal Pioneer Upstream Inshore' op=activate_persistence 
 bin/pycc -x ion.agents.agentctrl.AgentControl device_name='3-Wavelength Fluorometer on Wire-Following Profiler - Coastal Pioneer Upstream Inshore' op=set_calibration cfg=dsadriver/CalData.csv
 
 echo 'Configure Photosynthetically Available Radiation on Wire-Following Profiler - Coastal Pioneer Upstream Inshore'
 bin/pycc -x ion.agents.agentctrl.AgentControl device_name='Photosynthetically Available Radiation on Wire-Following Profiler - Coastal Pioneer Upstream Inshore' op=config_instance cfg=dsadriver/ai_configs_production.csv
+bin/pycc -x ion.agents.agentctrl.AgentControl device_name='Photosynthetically Available Radiation on Wire-Following Profiler - Coastal Pioneer Upstream Inshore' op=activate_persistence 
 bin/pycc -x ion.agents.agentctrl.AgentControl device_name='Photosynthetically Available Radiation on Wire-Following Profiler - Coastal Pioneer Upstream Inshore' op=set_calibration cfg=dsadriver/CalData.csv
 
 echo 'Configure Wire-Following Profiler - Coastal Pioneer Upstream Inshore'
@@ -18,10 +20,12 @@ bin/pycc -x ion.agents.agentctrl.AgentControl device_name='Wire-Following Profil
 
 echo 'Configure 3-Wavelength Fluorometer on Wire-Following Profiler - Coastal Pioneer Upstream Offshore'
 bin/pycc -x ion.agents.agentctrl.AgentControl instrument='3-Wavelength Fluorometer on Wire-Following Profiler - Coastal Pioneer Upstream Offshore' op=config_instance cfg=dsadriver/ai_configs_production.csv
+bin/pycc -x ion.agents.agentctrl.AgentControl instrument='3-Wavelength Fluorometer on Wire-Following Profiler - Coastal Pioneer Upstream Offshore' op=activate_persistence
 bin/pycc -x ion.agents.agentctrl.AgentControl device_name='3-Wavelength Fluorometer on Wire-Following Profiler - Coastal Pioneer Upstream Offshore' op=set_calibration cfg=dsadriver/CalData.csv
 
 echo 'Configure Photosynthetically Available Radiation on Wire-Following Profiler - Coastal Pioneer Upstream Offshore'
 bin/pycc -x ion.agents.agentctrl.AgentControl device_name='Photosynthetically Available Radiation on Wire-Following Profiler - Coastal Pioneer Upstream Offshore' op=config_instance cfg=dsadriver/ai_configs_production.csv
+bin/pycc -x ion.agents.agentctrl.AgentControl device_name='Photosynthetically Available Radiation on Wire-Following Profiler - Coastal Pioneer Upstream Offshore' op=activate_persistence
 bin/pycc -x ion.agents.agentctrl.AgentControl device_name='Photosynthetically Available Radiation on Wire-Following Profiler - Coastal Pioneer Upstream Offshore' op=set_calibration cfg=dsadriver/CalData.csv
 
 echo 'Configure Wire-Following Profiler - Coastal Pioneer Upstream Offshore'
