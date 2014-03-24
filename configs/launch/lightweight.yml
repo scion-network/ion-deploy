@@ -19,8 +19,8 @@ config:
 execution_engines:
   default:
     base_need: 1
-    replicas: 1
-    slots: 200
+    replicas: 8
+    slots: 30
 
 default_execution_engine: default
 
