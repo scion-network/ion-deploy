@@ -81,9 +81,7 @@ sed -e \
  s/REPLACE_WITH_EPUAGENT_VERS/${EPUAGENT_VERS}/g"\
  nimbus-$ION_NAME.yml > $RUN_DIR/nimbus-static.yml
 
-$RUN_DIR/bin/generate-plan --logconfig $RUN_DIR/logging.yml --profile $RUN_DIR/nimbus-static.yml --rel $PYON_PATH/res/deploy/r2deploy.yml --launch $PYON_PATH/res/launch/$ION_NAME.yml $RUN_DIR/plans/$ION_NAME -f 
-#$RUN_DIR/bin/generate-plan --logconfig $RUN_DIR/logging.yml --profile $RUN_DIR/nimbus-static.yml --rel $PYON_PATH/res/deploy/r2deploy.yml --launch $LAUNCH_HOME/stage-tmp.yml $RUN_DIR/plans/$ION_NAME -f 
-#$RUN_DIR/bin/generate-plan --logconfig $RUN_DIR/logging.yml --profile $RUN_DIR/nimbus-static.yml --rel $PYON_PATH/res/deploy/r2deploy.yml --launch $LAUNCH_HOME/beta-tmp.yml $RUN_DIR/plans/$ION_NAME -f 
+$RUN_DIR/bin/generate-plan --logconfig $RUN_DIR/logging.yml --profile $RUN_DIR/nimbus-static.yml --rel $PYON_PATH/res/deploy/r2deploy.yml --launch $LAUNCH_HOME/configs/launch/$ION_NAME.yml $RUN_DIR/plans/$ION_NAME -f
 
 # launch
 if [ "$LAUNCH_TYPE" == "launch" ]; then
