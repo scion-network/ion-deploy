@@ -1,0 +1,12 @@
+# This file configures the OOI Pioneer WPF instance configuration
+
+load_sequence:
+
+  - name: load_ooi_assets_inc1
+    docstring: Reapply OOI preload to create new models, devices, sites for increased deployment time period
+    config:
+      op: load
+      loadooi: True
+      assets: res/preload/r2_ioc/ooi_assets
+      ooiuntil: "6/30/2014"
+      ooiparams: True
