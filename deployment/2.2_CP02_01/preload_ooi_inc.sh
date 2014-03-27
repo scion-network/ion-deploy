@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 this_dir="$(dirname "$0")"
 
 echo 'Load ooi incremental preload'

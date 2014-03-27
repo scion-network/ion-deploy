@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 this_dir="$(dirname "$0")"
 
 echo 'Load WFP01'
