@@ -1,6 +1,6 @@
 #!bin/bash
 set -e
-set -x
+set -v
 trap 'my_exit; exit' SIGUSR1
 count=0
 this_dir="$(dirname "$0")"
