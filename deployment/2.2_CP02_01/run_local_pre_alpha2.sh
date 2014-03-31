@@ -7,7 +7,7 @@ this_dir="$(dirname "$0")"
 
 echo 'Run below steps on an old commit'
 git fetch origin
-git checkout v2.2.2
+yes | git checkout v2.2.2
 git submodule update
 ant clean
 bin/generate_interfaces
@@ -28,11 +28,12 @@ sh $this_dir/run_alpha1.sh
 sleep 5
 echo 'Kill the r2 deploy'
 
-kill $r2deploy_pid
+kill -s INT $r2deploy_pid
 
+sleep 5
 echo 'Run below steps with a new commit'
 git checkout REL2.0
-git checkout origin/REL2.0
+yes | git checkout origin/REL2.0
 git submodule update
 ant clean
 bin/generate_interfaces

@@ -25,7 +25,7 @@ bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=res/preload/r2_ioc/
 
 sleep 5
 echo 'Kill the r2 deploy'
-kill $r2deploy_pid
+kill -s INT $r2deploy_pid
 
 echo 'Now manually change to a new commit before running next step'
 git checkout REL2.0
