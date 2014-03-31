@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
-set -x
-this_dir="$(dirname "$0")"
+set -v
+thisdir="$(dirname "$0")"
 
 echo 'Load WFP01'
-bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=$thisdir/wfp_all01.yml path="https://docs.google.com/spreadsheet/pub?key=0Aq_8oD79eIi4dElmNnp0SEo4RlYzLVVMWWhHcTdIaGc&output=xls" assetmappings="https://docs.google.com/spreadsheet/pub?key=0Aq_8oD79eIi4dEtVX1ZpaXRZNTlENVdWMWZidTdZMGc&output=xls"
+bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=$thisdir/wfp_preload.yml path="https://docs.google.com/spreadsheet/pub?key=0Aq_8oD79eIi4dElmNnp0SEo4RlYzLVVMWWhHcTdIaGc&output=xls" assetmappings="https://docs.google.com/spreadsheet/pub?key=0Aq_8oD79eIi4dEtVX1ZpaXRZNTlENVdWMWZidTdZMGc&output=xls"
 
 echo 'Configure 3-Wavelength Fluorometer on Wire-Following Profiler - Coastal Pioneer Upstream Inshore'
 bin/pycc -x ion.agents.agentctrl.AgentControl instrument='3-Wavelength Fluorometer on Wire-Following Profiler - Coastal Pioneer Upstream Inshore' op=config_instance cfg=$thisdir/eai_configs.csv
