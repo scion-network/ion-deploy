@@ -10,3 +10,4 @@ load_sequence:
       assets: res/preload/r2_ioc/ooi_assets
       ooiuntil: "6/30/2014"
       ooiparams: True
+      ooiupdate: True
