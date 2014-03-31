@@ -3,7 +3,7 @@ set -e
 set -v
 trap 'my_exit; exit' SIGUSR1
 count=0
-this_dir="$(dirname "$0")"
+thisdir="$(dirname "$0")"
 
 echo 'Run below steps on an old commit'
 git fetch origin
@@ -27,6 +27,7 @@ sleep 5
 echo 'Kill the r2 deploy'
 kill -s INT $r2deploy_pid
 
+sleep 5
 echo 'Now manually change to a new commit before running next step'
 git checkout REL2.0
 git checkout origin/REL2.0

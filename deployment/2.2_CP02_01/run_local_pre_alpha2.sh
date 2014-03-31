@@ -3,7 +3,7 @@ set -v
 set -e
 trap 'my_exit; exit' SIGUSR1
 count=0
-this_dir="$(dirname "$0")"
+thisdir="$(dirname "$0")"
 
 echo 'Run below steps on an old commit'
 git fetch origin
@@ -23,7 +23,7 @@ echo 'Preload ion alpha'
 bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=res/preload/r2_ioc/config/ooi_alpha.yml path="https://docs.google.com/spreadsheet/pub?key=0Aq_8oD79eIi4dHpTOGV2bGZVNkJXd0J1ci1SX25zNXc&output=xls" assetmappings="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdHA2MHNSX1dlT2ZTaHVrNVJzOG4xZnc&output=xls"
 
 echo 'Run alpha integration 1 scripts...This is just an approximation'
-sh $this_dir/run_alpha1.sh
+sh $thisdir/run_alpha1.sh
 
 sleep 5
 echo 'Kill the r2 deploy'
