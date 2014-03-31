@@ -1,7 +1,7 @@
 #!bin/bash
 set -e
 set -v
-this_dir="$(dirname "$0")"
+thisdir="$(dirname "$0")"
 
 echo 'Stop agents for 2 sites'
 bin/pycc -x ion.agents.agentctrl.AgentControl force=True recurse=True preload_id="CE09OSPM-WF001_PD,CP04OSPM-WF001_PD" op=stop
