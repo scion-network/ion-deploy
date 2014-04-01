@@ -9,11 +9,15 @@ bin/pycc -x ion.agents.agentctrl.AgentControl force=True recurse=True preload_id
 echo 'Deactivate persistence for 2 sites'
 bin/pycc -x ion.agents.agentctrl.AgentControl force=True recurse=True preload_id="CE09OSPM-WF001_PD,CP04OSPM-WF001_PD" op=suspend_persistence
 
+echo 'Run wfp preload'
+bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=$thisdir/ooi_inc_preload.yml path=master
+
 echo 'Remove resources and coverage and agent state for 6 WP and 6 WF sites'
 bin/pycc -x ion.agents.agentctrl.AgentControl force=True recurse=True preload_id="CP02PMUI-WP001_PD,CP02PMUO-WP001_PD,CP02PMCI-WP001_PD,CP02PMCO-WP001_PD,CE09OSPM-WP001_PD,CP04OSPM-WP001_PD,CP02PMUI-WF001_PD,CP02PMUO-WF001_PD,CP02PMCI-WF001_PD,CP02PMCO-WF001_PD,CE09OSPM-WF001_PD,CP04OSPM-WF001_PD" op=delete_all_site
 
-echo 'Run wfp preload'
 bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=$thisdir/wfp_preload.yml path=master
+bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=$thisdir/ooi_inc_preload.yml path=master
+
 
 echo 'run calibration for 4 sites'
 bin/pycc -x ion.agents.agentctrl.AgentControl force=True recurse=True preload_id="CP02PMUI-WP001_PD,CP02PMUO-WP001_PD,CP02PMCI-WP001_PD,CP02PMCO-WP001_PD" op=set_calibration cfg=$thisdir/calibration2.csv
