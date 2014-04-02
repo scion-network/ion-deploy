@@ -22,14 +22,14 @@ echo 'Run inc preload 2'
 bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=$thisdir/ooi_inc_preload.yml path=master
 
 
-echo 'run calibration for 4 sites'
+echo 'run calibration for 4 instruments and 2 pds'
 bin/pycc -x ion.agents.agentctrl.AgentControl force=True preload_id="CP02PMUI-WF001-04-FLORTK999_ID,CP02PMUI-WF001-05-PARADK999_ID,CP02PMUI-WF001_PD,CP02PMUO-WF001-04-FLORTK999_ID,CP02PMUO-WF001-05-PARADK999_ID,CP02PMUO-WF001_PD" op=set_calibration cfg=$thisdir/calibration2.csv
 
-echo 'activate deployment for 4 sites'
+echo 'activate deployment for 4 instruments and 2 pds'
 bin/pycc -x ion.agents.agentctrl.AgentControl force=True preload_id="CP02PMUI-WF001-04-FLORTK999_ID,CP02PMUI-WF001-05-PARADK999_ID,CP02PMUI-WF001_PD,CP02PMUO-WF001-04-FLORTK999_ID,CP02PMUO-WF001-05-PARADK999_ID,CP02PMUO-WF001_PD" op=activate_deployment
 
-echo 'configure agent instances for 4 sites'
+echo 'configure agent instances for 4 instruments and 2 pds'
 bin/pycc -x ion.agents.agentctrl.AgentControl force=True preload_id="CP02PMUI-WF001-04-FLORTK999_ID,CP02PMUI-WF001-05-PARADK999_ID,CP02PMUI-WF001_PD,CP02PMUO-WF001-04-FLORTK999_ID,CP02PMUO-WF001-05-PARADK999_ID,CP02PMUO-WF001_PD" op=config_instance cfg=$thisdir/eai_configs.csv
 
-echo 'Start agents for 4 sites'
+echo 'Start agents for 4 instruments and 2 pds'
 bin/pycc -x ion.agents.agentctrl.AgentControl force=True preload_id="CP02PMUI-WF001-04-FLORTK999_ID,CP02PMUI-WF001-05-PARADK999_ID,CP02PMUI-WF001_PD,CP02PMUO-WF001-04-FLORTK999_ID,CP02PMUO-WF001-05-PARADK999_ID,CP02PMUO-WF001_PD" op=start
