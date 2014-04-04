@@ -22,7 +22,7 @@ echo 'Remove resources and coverage and agent state for 3 GP05 glider platform d
 bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="GP05MOAS-GL001_PD,GP05MOAS-GL002_PD,GP05MOAS-GL003_PD" op=delete_all_device
 
 echo 'Remove resources for 3 GP05 glider platform sites recursively'
-bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="GP05MOAS-GL001,GP05MOAS-GL002,GP05MOAS-GL003"" op=delete_site
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="GP05MOAS-GL001,GP05MOAS-GL002,GP05MOAS-GL003" op=delete_site
 
 echo 'Run OOI preload incrementally - this will fill in the gaps after the deletions and create DataProducts for new agent definitions'
 bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader cfg=$thisdir/ooi_inc_preload.yml path=/tmp/preload.xlsx assetmappings=/tmp/assetmappings.xlsx
