@@ -1,0 +1,41 @@
+profile_type: nimbus-static
+iaas:
+  site: ooi.ucsd
+  key: Rvp3nHCI03zGRGoOrBO1n
+  secret: xj8LRHvNkLsNEeK5zqmS4VAnwDMwdbgqu3hcRwxNcX
+  url: https://nimbus-prod.oceanobservatories.org:8444
+  base-image: r2-worker
+  base-allocation: m1.xlarge
+  sshkeyname: ooi
+rabbitmq:
+  host: rabbit.b3.oceanobservatories.org
+  username: ooistagermq
+  password: RBT5t2G3
+postgres:
+  host: pg.b3.oceanobservatories.org
+  password: 003y3C3Y3
+  admin_username: ooiuser
+  admin_password: 003y3C3Y3
+graylog:
+  host: logging.b3.oceanobservatories.org
+zookeeper:
+  hosts: [zk01.b3.oceanobservatories.org,zk02.b3.oceanobservatories.org,zk03.b3.oceanobservatories.org]
+  enabled: true
+
+# Package versions
+packages:
+  coi_services: http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-REPLACE_WITH_COI_VERS.tar.gz
+  dt_data: http://sddevrepo.oceanobservatories.org/releases/dt-data-ooici-master.tar.gz
+  epu: http://sddevrepo.oceanobservatories.org/releases/epu-venv-ooici-REL2.0-REPLACE_WITH_EPU_VERS.tar.gz
+  epuagent: http://sddevrepo.oceanobservatories.org/releases/epuagent-venv-ooici-REL2.0-REPLACE_WITH_EPUAGENT_VERS.tar.gz
+
+# if desired, include a list of hostnames here which will be DDNS-assigned
+# to the service gateway VMs. Ensure you have at least as many hostnames
+# as there will ever be VMs.
+gateway_ddns_hosts:
+  - sg01.b3.oceanobservatories.org
+  - sg02.b3.oceanobservatories.org
+  - sg03.b3.oceanobservatories.org
+  - sg04.b3.oceanobservatories.org
+
+pyon_config_output: /var/jenkins/workspace/ION_Beta/coi-services/res/config/pyon.local.yml

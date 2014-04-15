@@ -70,6 +70,26 @@ case $ION_NAME in
         export ASSET_MAP_KEY="0ArzZOLNhEGVqdHA2MHNSX1dlT2ZTaHVrNVJzOG4xZnc"
 	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader assets=res/preload/r2_ioc/ooi_assets cfg=res/preload/r2_ioc/config/ooi_beta.yml path='http://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls' assetmappings='http://docs.google.com/spreadsheet/pub?key=${ASSET_MAP_KEY}&output=xls'"
   	;;
+  # ion-beta r3
+  beta_r3)
+  	export RUN=R3_BETA_SYSTEM
+	export RABBITMQ_HOST=rabbit.b3.oceanobservatories.org
+  	export RABBITMQ_USERNAME=ooistagermq
+  	export RABBITMQ_PASSWORD="RBT5t2G3"
+	export ERDDAP_HOST=erddap.b3.oceanobservatories.org
+	export GRAYLOG_HOST=logging.b3.oceanobservatories.org
+	export NAGIOS_HOST=nagios-sd.oceanobservatories.org
+        export SG_HOST=sg.b3.oceanobservatories.org
+	export UX_HOST=r3-beta.oceanobservatories.org
+	export COI_VERS="2.2.3"
+	#export DTDATA_VERS="2.0.1"
+	export EPU_VERS="2.0.1"
+	export EPUAGENT_VERS="2.0.2"
+	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-$COI_VERS.tar.gz"
+	export PRELOAD_KEY="0Aq_8oD79eIi4dHpTOGV2bGZVNkJXd0J1ci1SX25zNXc"
+        export ASSET_MAP_KEY="0ArzZOLNhEGVqdHA2MHNSX1dlT2ZTaHVrNVJzOG4xZnc"
+	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader assets=res/preload/r2_ioc/ooi_assets cfg=res/preload/r2_ioc/config/ooi_beta.yml path='http://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls' assetmappings='http://docs.google.com/spreadsheet/pub?key=${ASSET_MAP_KEY}&output=xls'"
+  	;;
   *)
   	echo "Not a valid ion system name. Aborting..."
 	exit 1
