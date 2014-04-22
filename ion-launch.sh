@@ -65,9 +65,8 @@ if [ "$LAUNCH_TYPE" == "launch" ]; then
   # Cleanup erddap cache
   ssh $ERDDAP_HOST "sudo ~/bin/clean-erddap.sh"
 else 
-  # Relaunch, only clean durable consumers
-  python rabbitmqadmin.py -H $RABBITMQ_HOST -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD list queues name durable consumers idle_since -f kvp | grep 'consumers="0"' | grep 'durable="False"' | cut -d' ' -f1 | xargs -I % 
-  python rabbitmqadmin.py -H $RABBITMQ_HOST -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD delete queue %
+  # Relaunch, only clean non-durable queues
+  python rabbitmqadmin.py -H $RABBITMQ_HOST -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD list queues name durable consumers idle_since -f kvp | grep 'consumers="0"' | grep 'durable="False"' | cut -d' ' -f1 | xargs -I % python rabbitmqadmin.py -H $RABBITMQ_HOST -u $RABBITMQ_USERNAME -p $RABBITMQ_PASSWORD delete queue %
 fi
 
 # log build number
