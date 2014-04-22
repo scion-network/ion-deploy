@@ -89,7 +89,8 @@ case $ION_NAME in
 	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-$COI_VERS.tar.gz"
 	export PRELOAD_KEY="0Aq_8oD79eIi4dHpTOGV2bGZVNkJXd0J1ci1SX25zNXc"
         export ASSET_MAP_KEY="0ArzZOLNhEGVqdHA2MHNSX1dlT2ZTaHVrNVJzOG4xZnc"
-	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader assets=res/preload/r2_ioc/ooi_assets cfg=res/preload/r2_ioc/config/ooi_beta.yml path='http://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls' assetmappings='http://docs.google.com/spreadsheet/pub?key=${ASSET_MAP_KEY}&output=xls'"
+        export UI_PATH="https://userexperience.oceanobservatories.org/database-exports/R3Candidates/"
+	export PRELOAD="bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader ui_path=${UI_PATH} assets=res/preload/r2_ioc/ooi_assets cfg=res/preload/r2_ioc/config/ooi_beta.yml path='http://docs.google.com/spreadsheet/pub?key=${PRELOAD_KEY}&output=xls' assetmappings='http://docs.google.com/spreadsheet/pub?key=${ASSET_MAP_KEY}&output=xls'"
   	;;
   *)
   	echo "Not a valid ion system name. Aborting..."
