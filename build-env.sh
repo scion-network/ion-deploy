@@ -24,6 +24,7 @@ export RUN_DIR=$LAUNCH_PLANS/R2
 export BUILD_LOG=./logs/$DATE
 export PYON_PATH=$LAUNCH_HOME/coi-services
 export PYON_CONFIG_FILE=$PYON_PATH/res/config/pyon.local.yml
+export REMOTE_WORKING_DIR_ENV=/tmp/nimbusready-$ION_NAME
 
 # Need to set this for Jenkins so mx can start
 export BUILD_ID=
