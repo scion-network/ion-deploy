@@ -1,0 +1,38 @@
+profile_type: nimbus-static
+iaas:
+  site: ooi.ucsd
+  key: MlanhoZZlYGbyjafyZrWu 
+  secret: pwmHJQDseR57Tg3PoIUpS8tYblk4fyZjH2WHlqbUU3
+  url: https://nimbus-dev0.oceanobservatories.org:8444
+  base-image: r2-worker-stage
+  base-allocation: m1.xlarge
+  sshkeyname: ooi
+rabbitmq:
+  host: r2-rabbitmq-test02.oceanobservatories.org
+  # host: rabbit.a.oceanobservatories.org
+  username: guest
+  password: guest
+postgres: 
+  # host: pg.a.oceanobservatories.org
+  host: pg.a.oceanobservatories.org
+  password: 003y3C3Y3
+  admin_username: ooiuser
+  admin_password: 003y3C3Y3
+zookeeper:
+  hosts: [zk01.a.oceanobservatories.org, zk02.a.oceanobservatories.org, zk03.a.oceanobservatories.org]
+  enabled: true
+graylog:
+  host: logging.a.oceanobservatories.org
+
+# Package versions
+packages:
+  coi_services: http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-2.2.4.tar.gz
+# if desired, include a list of hostnames here which will be DDNS-assigned
+# to the service gateway VMs. Ensure you have at least as many hostnames
+# as there will ever be VMs.
+gateway_ddns_hosts:
+  - sg01.a.oceanobservatories.org
+  - sg02.a.oceanobservatories.org
+  - sg03.a.oceanobservatories.org
+  - sg04.a.oceanobservatories.org
+pyon_config_output: REPLACE_WITH_PYON_CONFIG

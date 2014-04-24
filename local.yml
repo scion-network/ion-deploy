@@ -1,0 +1,14 @@
+profile_type: local
+rabbitmq:
+  host: localhost
+  username: guest
+  password: guest
+postgres: 
+  host: pg-dev01.oceanobservatories.org
+  password: 003y3C3Y3
+  admin_username: ooiuser
+  admin_password: 003y3C3Y3
+# Package versions
+packages:
+  coi_services: http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master.tar.gz
+pyon_path: REPLACE_WITH_COI

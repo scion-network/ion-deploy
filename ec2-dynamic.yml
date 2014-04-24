@@ -1,0 +1,18 @@
+profile_type: ec2-dynamic
+iaas:
+  site: ec2.us-west-1
+  region: us-west-1
+  key: KJITneqM1OkBF1kksFNaE
+  secret: 52sM6mZASkGgr8AUcxmhm8MsY1JxssdmcEHJWK3CbR
+  base-image: r2-worker
+  base-allocation: t1.micro
+  sshkeyname: ooi
+rabbitmq:
+  username: guest
+  password: guest
+couchdb:
+  username: ooiuser
+  password: 003y3C3Y3
+graylog:
+  host: logging-dev.oceanobservatories.org
+pyon_config_output: REPLACE_WITH_PYON_CONFIG

@@ -1,0 +1,29 @@
+profile_type: nimbus-dynamic
+iaas:
+  site: ooi.ucsd
+  key: KJITneqM1OkBF1kksFNaE
+  secret: 52sM6mZASkGgr8AUcxmhm8MsY1JxssdmcEHJWK3CbR
+  url: https://nimbus-dev0.oceanobservatories.org:8444
+  base-image: r2-worker-stage
+  base-allocation: m1.large
+  sshkeyname: ooi
+rabbitmq:
+  username: guest
+  password: guest
+postgres: 
+  password: 003y3C3Y3
+  admin_username: ooiuser
+  admin_password: 003y3C3Y3
+zookeeper:
+  hosts: [zk01.dev.oceanobservatories.org, zk02.dev.oceanobservatories.org, zk03.dev.oceanobservatories.org]
+  enabled: true
+graylog:
+  host: logging-dev.oceanobservatories.org
+# Package versions
+packages:
+  coi_services: http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master.tar.gz
+pyon_config_output: REPLACE_WITH_PYON_CONFIG
+trafficsentinel:                                                                 
+  host: trafficsentinel.oceanobservatories.org                                   
+  username: developer                                                            
+  password: developer8 
