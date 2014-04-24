@@ -16,6 +16,31 @@ rm -f /tmp/assetmappings.xlsx
 curl -o /tmp/preload.xlsx $preload_path
 curl -o /tmp/assetmappings.xlsx $assetmappings_path
 
+echo 'Correct CP02PMUI-0001 PARADK wrong wet calibration factor in previous release'
+
+echo 'stop agent instance'
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=stop
+
+echo 'suspend persistence'
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=suspend_persistence autoclean=True
+
+echo 'delete coverage dataset'
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=delete_dataset
+
+echo 'clear saved state'
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=clear_saved_state
+
+echo 'run calibration'
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=set_calibration cfg=$thisdir/calibration.csv
+
+echo 'start persistence'
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=activate_persistence
+
+echo 'start agent instance'
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=start
+
+echo 'Clean up CP02PMUO-RI001-01-ADCPSL999 as it has wrong data products.  We created new agent maps using ADCPSL_CSTL to differentiate from default global deployments that uses a different driver.'
+
 echo 'Run OOI preload incrementally - this will fill in the gaps after the deletions and create DataProducts for new agent definitions'
 bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader op=load loadooi=True path=/tmp/preload.xlsx assetmappings=/tmp/assetmappings.xlsx ooiuntil="6/30/2014" ooiparams=True ooiupdate=True
 
@@ -25,9 +50,9 @@ bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUI-WP001_PD,CP02
 echo 'suspend persistence'
 bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUO-RI001-01-ADCPSL999_ID" op=suspend_persistence autoclean=True
 
-echo 'Clean up CP02PMUO-RI001-01-ADCPSL999 as it has wrong data products'
 echo 'Remove resources and coverage and agent state for CP02PMUO-RI001-01-ADCPSL999_ID'
 bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUO-RI001-01-ADCPSL999_ID" op=delete_all_device
+
 echo 'Remove resources for CP02PMUO-RI001-01-ADCPSL999 site'
 bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUO-RI001-01-ADCPSL999" op=delete_site
 
@@ -36,6 +61,8 @@ bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader op=load path=/tmp/prelo
 
 echo 'Run OOI preload incrementally - this will fill in the gaps after the deletions and create DataProducts for new agent definitions'
 bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader op=load loadooi=True path=/tmp/preload.xlsx assetmappings=/tmp/assetmappings.xlsx ooiuntil="6/30/2014" ooiparams=True ooiupdate=True
+
+echo 'Bring in 5 new drivers for CP02PMUI and CP02PMUO platforms'
 
 echo 'Run calibration for CP02PMUI consisting of 1 PD and 4 IDs, and CP02PMUO consisting of 1PD and 4 IDs'
 bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUI-SB001_PD,CP02PMUI-WF001-01-VEL3DK999_ID,CP02PMUI-WF001-02-DOFSTK999_ID,CP02PMUI-WF001-03-CTDPFK999_ID,CP02PMUI-RI001-01-ADCPTG999_ID,CP02PMUO-SB001_PD,CP02PMUO-WF001-01-VEL3DK999_ID,CP02PMUO-WF001-02-DOFSTK999_ID,CP02PMUO-WF001-03-CTDPFK999_ID,CP02PMUO-RI001-01-ADCPSL999_ID" op=set_calibration cfg=$thisdir/calibration.csv
