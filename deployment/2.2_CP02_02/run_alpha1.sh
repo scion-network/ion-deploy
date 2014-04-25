@@ -36,8 +36,22 @@ bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-
 echo 'start persistence'
 bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=activate_persistence
 
+if [ $1 != "NORUN" ]; then
 echo 'start agent instance'
 bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=start
+fi
+
+echo 'CE09OSPM-WP001_PD site has SB missing.  Needs to clean up site/device trees and incremental preload again'
+
+echo 'Stop agents'
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True autoclean=True preload_id="CE09OSPM-WP001_PD" op=stop
+
+echo 'Suspend persistence'
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True autoclean=True preload_id="CE09OSPM-WP001_PD" op=suspend_persistence
+
+echo 'Clean site and device tree'
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CE09OSPM-WP001" op=delete_site
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CE09OSPM-WP001_PD" op=delete_all_device
 
 echo 'Clean up CP02PMUO-RI001-01-ADCPSL999 as it has wrong data products.  We created new agent maps using ADCPSL_CSTL to differentiate from default global deployments that uses a different driver.'
 
@@ -67,12 +81,10 @@ echo 'Bring in 5 new drivers for CP02PMUI and CP02PMUO platforms'
 echo 'Run calibration for CP02PMUI consisting of 1 PD and 4 IDs, and CP02PMUO consisting of 1PD and 4 IDs'
 bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUI-SB001_PD,CP02PMUI-WF001-01-VEL3DK999_ID,CP02PMUI-WF001-02-DOFSTK999_ID,CP02PMUI-WF001-03-CTDPFK999_ID,CP02PMUI-RI001-01-ADCPTG999_ID,CP02PMUO-SB001_PD,CP02PMUO-WF001-01-VEL3DK999_ID,CP02PMUO-WF001-02-DOFSTK999_ID,CP02PMUO-WF001-03-CTDPFK999_ID,CP02PMUO-RI001-01-ADCPSL999_ID" op=set_calibration cfg=$thisdir/calibration.csv
 
-echo 'Configure agent instances for CP02PMUI consisting of 1 PD and 4 IDs, and CP02PMUO consisting of 1PD and 4 IDs' 
+echo 'Configure agent instances for CP02PMUI consisting of 1 PD and 4 IDs, and CP02PMUO consisting of 1PD and 4 IDs'
 bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUI-SB001_PD,CP02PMUI-WF001-01-VEL3DK999_ID,CP02PMUI-WF001-02-DOFSTK999_ID,CP02PMUI-WF001-03-CTDPFK999_ID,CP02PMUI-RI001-01-ADCPTG999_ID,CP02PMUO-SB001_PD,CP02PMUO-WF001-01-VEL3DK999_ID,CP02PMUO-WF001-02-DOFSTK999_ID,CP02PMUO-WF001-03-CTDPFK999_ID,CP02PMUO-RI001-01-ADCPSL999_ID" op=config_instance cfg=$thisdir/eai_configs.csv
 
-if [ $1 == "NORUN" ]; then
-  exit 0
-fi
-
-echo 'Start agents for CP02PMUI consisting of 1 PD and 4 IDs, and CP02PMUO consisting of 1PD and 4 IDs' 
+if [ $1 != "NORUN" ]; then
+echo 'Start agents for CP02PMUI consisting of 1 PD and 4 IDs, and CP02PMUO consisting of 1PD and 4 IDs'
 bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUI-SB001_PD,CP02PMUI-WF001-01-VEL3DK999_ID,CP02PMUI-WF001-02-DOFSTK999_ID,CP02PMUI-WF001-03-CTDPFK999_ID,CP02PMUI-RI001-01-ADCPTG999_ID,CP02PMUO-SB001_PD,CP02PMUO-WF001-01-VEL3DK999_ID,CP02PMUO-WF001-02-DOFSTK999_ID,CP02PMUO-WF001-03-CTDPFK999_ID,CP02PMUO-RI001-01-ADCPSL999_ID" op=start
+fi
