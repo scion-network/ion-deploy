@@ -93,9 +93,13 @@ bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMCI-WP001_PD,CP02
 
 if [ $1 != "NORUN" ]; then
 echo 'Start agents for CP02PMUI consisting of 1 PD and 4 IDs, and CP02PMUO consisting of 1PD and 4 IDs'
-bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUI-SB001_PD,CP02PMUI-WF001-01-VEL3DK999_ID,CP02PMUI-WF001-02-DOFSTK999_ID,CP02PMUI-WF001-03-CTDPFK999_ID,CP02PMUI-RI001-01-ADCPTG999_ID,CP02PMUO-SB001_PD,CP02PMUO-WF001-01-VEL3DK999_ID,CP02PMUO-WF001-02-DOFSTK999_ID,CP02PMUO-WF001-03-CTDPFK999_ID,CP02PMUO-RI001-01-ADCPSL999_ID" op=start
+bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUI-SB001_PD,CP02PMUI-WF001-01-VEL3DK999_ID,CP02PMUI-WF001-02-DOFSTK999_ID,CP02PMUI-WF001-03-CTDPFK999_ID,CP02PMUI-RI001-01-ADCPTG999_ID" op=start
+bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUO-SB001_PD,CP02PMUO-WF001-01-VEL3DK999_ID,CP02PMUO-WF001-02-DOFSTK999_ID,CP02PMUO-WF001-03-CTDPFK999_ID,CP02PMUO-RI001-01-ADCPSL999_ID" op=start
 
 echo 'Start agents 8 drivers for 4 platforms CP02PMCI, CP02PMCO, CE09OSPM, CP04OSPM'
-bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMCI-WP001_PD,CP02PMCO-WP001_PD,CE09OSPM-WP001_PD,CP04OSPM-WP001_PD" recurse=True op=start
+bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMCI-WP001_PD" recurse=True op=start
+bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMCO-WP001_PD" recurse=True op=start
+bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CE09OSPM-WP001_PD" recurse=True op=start
+bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP04OSPM-WP001_PD" recurse=True op=start
 
 fi
