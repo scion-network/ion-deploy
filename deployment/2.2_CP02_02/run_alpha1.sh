@@ -19,7 +19,7 @@ curl -o /tmp/assetmappings.xlsx $assetmappings_path
 echo 'Correct CP02PMUI-0001 PARADK wrong wet calibration factor in previous release'
 
 echo 'stop agent instance'
-bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=stop
+bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=stop autoclean=True
 
 echo 'suspend persistence'
 bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUI-WF001-05-PARADK999_ID" op=suspend_persistence autoclean=True
@@ -59,7 +59,7 @@ echo 'Run OOI preload incrementally - this will fill in the gaps after the delet
 bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader op=load loadooi=True path=/tmp/preload.xlsx assetmappings=/tmp/assetmappings.xlsx ooiuntil="6/30/2014" ooiparams=True ooiupdate=True
 
 echo 'Deactivate deployment for the 2 top PDS'
-bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUI-WP001_PD,CP02PMUO-WP001_PD" op=deactivate_deployment
+bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUO-WP001_PD" op=deactivate_deployment
 
 echo 'suspend persistence'
 bin/pycc -x ion.agents.agentctrl.AgentControl recurse=True preload_id="CP02PMUO-RI001-01-ADCPSL999_ID" op=suspend_persistence autoclean=True
