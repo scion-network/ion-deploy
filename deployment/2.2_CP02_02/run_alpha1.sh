@@ -4,12 +4,12 @@ set -v
 thisdir="$(dirname "$0")"
 
 # MASTER paths
-preload_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdG82NHZfSEJJOGdQTkgzb05aRjkzMEE&output=xls"
-assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdFVUeDdoUTU0b0NFQ1dCVDhuUjY0THc&output=xls"
+#preload_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdG82NHZfSEJJOGdQTkgzb05aRjkzMEE&output=xls"
+#assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdFVUeDdoUTU0b0NFQ1dCVDhuUjY0THc&output=xls"
 
 # Copy of master
-#preload_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdGptdl8tVk1QdHl0d01oYTY0aGJTMVE&output=xls"
-#assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdHpVSmtIUE5UeHNUTVBObmd4WlBmaHc&output=xls"
+preload_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdDNNZ2pDWENHdmY4bHM1UkU5Mlhpbmc&output=xls"
+assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdHoxSWpva2pIN0UtenBoMmt4ODNFYVE&output=xls"
 
 rm -f /tmp/preload.xlsx
 rm -f /tmp/assetmappings.xlsx
