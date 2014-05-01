@@ -58,7 +58,7 @@ echo 'Clean up CP02PMUO-RI001-01-ADCPSL999 as it has wrong data products.  We cr
 echo 'Run OOI preload incrementally - this will fill in the gaps after the deletions and create DataProducts for new agent definitions'
 bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader op=load loadooi=True path=/tmp/preload.xlsx assetmappings=/tmp/assetmappings.xlsx ooiuntil="6/30/2014" ooiparams=True ooiupdate=True
 
-echo 'Deactivate deployment for the 2 top PDS'
+echo 'Deactivate deployment for CP02PMUO PD'
 bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUO-WP001_PD" op=deactivate_deployment
 
 echo 'suspend persistence'
@@ -75,6 +75,9 @@ bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader op=load path=/tmp/prelo
 
 echo 'Run OOI preload incrementally - this will fill in the gaps after the deletions and create DataProducts for new agent definitions'
 bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader op=load loadooi=True path=/tmp/preload.xlsx assetmappings=/tmp/assetmappings.xlsx ooiuntil="6/30/2014" ooiparams=True ooiupdate=True
+
+echo 'activate deployment for CP02PMUO PD, incremental preload does not activate existing deployment'
+bin/pycc -x ion.agents.agentctrl.AgentControl preload_id="CP02PMUO-WP001_PD" op=activate_deployment
 
 echo 'Bring in 5 new drivers for CP02PMUI, CP02PMUO platforms'
 
