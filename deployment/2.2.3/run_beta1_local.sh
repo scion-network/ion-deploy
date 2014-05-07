@@ -17,7 +17,7 @@ curl -o /tmp/preload.xlsx $preload_path
 curl -o /tmp/assetmappings.xlsx $assetmappings_path
 
 echo 'Setting serial numbers for existing devices'
-bin/pycc -x ion.agents.agentctrl.AgentControl op=set_attributes preload_id="CP02PMUO-WP001_PD,CP02PMUI-WP001_PD" recurse=True cfg=$thisdir/serial_numbers.csv
+bin/pycc -x ion.agents.agentctrl.AgentControl op=set_attributes preload_id="CP02PMUO-WP001_PD,CP02PMUI-WP001_PD,CP02PMCI-WP001_PD,CP02PMCO-WP001_PD,CE09OSPM-WP001_PD,CP04OSPM-WP001_PD" recurse=True cfg=$thisdir/serial_numbers.csv
 
 echo 'Running OOI incremental preload to update names for devices etc with serial numbers'
 bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader op=load loadooi=True path=/tmp/preload.xlsx assetmappings=/tmp/assetmappings.xlsx ooiuntil="6/30/2014" ooiparams=True ooiupdate=True
@@ -25,8 +25,11 @@ bin/pycc -x ion.processes.bootstrap.ion_loader.IONLoader op=load loadooi=True pa
 echo 'Cloning (recursively) devices, agent instances, data products for CP02PMUO-WP001 and CP02PMUI-WP001'
 bin/pycc -x ion.agents.agentctrl.AgentControl op=clone_device preload_id="CP02PMUO-WP001_PD,CP02PMUI-WP001_PD" clone_id=CL1 recurse=True verbose=True cfg=$thisdir/clone_attributes.csv
 
-echo 'Cloning (recursively) deployments for CP02PMUO-WP001 and CP02PMUI-WP001'
+echo 'Cloning deployments for CP02PMUO-WP001 and CP02PMUI-WP001'
 bin/pycc -x ion.agents.agentctrl.AgentControl op=clone_deployment preload_id="CP02PMUO-WP001_DEP,CP02PMUI-WP001_DEP" clone_id=CL1 recurse=True verbose=True cfg=$thisdir/clone_attributes.csv
+
+#echo 'Setting serial numbers for new cloned devices'
+#bin/pycc -x ion.agents.agentctrl.AgentControl op=set_attributes preload_id="CP02PMUO-WP001_PD_CL1,CP02PMUI-WP001_PD_CL1" recurse=True cfg=$thisdir/serial_numbers.csv
 
 echo 'Set agent instance config for CP02PMUO-WP001 and CP02PMUI-WP001'
 
@@ -35,3 +38,6 @@ echo 'Activate persistence for CP02PMUO-WP001 and CP02PMUI-WP001'
 echo 'Activate deployment for CP02PMUO-WP001 and CP02PMUI-WP001'
 
 echo 'Start agents for CP02PMUO-WP001 and CP02PMUI-WP001'
+
+echo 'Updating system attribute mi_release_version'
+bin/pycc -x ion.agents.agentctrl.AgentControl op=set_sys_attribute attr_key=mi_release_version attr_value="2.2.3" verbose=True

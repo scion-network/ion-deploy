@@ -1,1 +1,3 @@
-ID,Attribute,Name,Value,Type,CommentCP02PMUO-WP001_PD_CL1,,name,Mooring clone,str,CP02PMUO-WP001_DEP_CL1,,name,Deployment clone,str,
+ID,Attribute,Name,Value,Type,Comment
+CP02PMUO-WP001_PD_CL1,,name,Mooring clone,str,
+CP02PMUO-WP001_DEP_CL1,,name,Deployment clone,str,
