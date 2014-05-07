@@ -1,0 +1,17 @@
+ID,Harvester Config,Parser Config,Records Per Granule
+CP02PMUI-WF001,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: E*.DAT",,50
+CP02PMUI-WF001-03-CTDPFK999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: C*.DAT",,50
+CP02PMUI-WF001-02-DOFSTK999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: C*.DAT",,50
+CP02PMUI-WF001-04-FLORTK999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: E*.DAT",,50
+CP02PMUI-WF001-05-PARADK999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: E*.DAT",,50
+CP02PMUI-WF001-01-VEL3DK999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: A*.DEC",,50
+CP02PMUI-RI001-01-ADCPTG999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/adcpt, pattern: adcpt_*_*.DAT",,50
+CP02PMUI-SB001,"cg_stc_eng.directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/irid2shore,cg_stc_eng.pattern: stc_status.*_*.txt,cg_stc_eng.frequency: 1,cg_stc_eng.file_mod_wait_time: 30",,50
+CP02PMUO-WF001,"directory: /whoi/cg_whoi/OMC/CP02PMUO/D00002/imm/mmp, pattern: E*.DAT",,50
+CP02PMUO-WF001-03-CTDPFK999,"directory: /whoi/cg_whoi/OMC/CP02PMUO/D00002/imm/mmp, pattern: C*.DAT",,50
+CP02PMUO-WF001-02-DOFSTK999,"directory: /whoi/cg_whoi/OMC/CP02PMUO/D00002/imm/mmp, pattern: C*.DAT",,50
+CP02PMUO-WF001-04-FLORTK999,"directory: /whoi/cg_whoi/OMC/CP02PMUO/D00002/imm/mmp, pattern: E*.DAT",,50
+CP02PMUO-WF001-05-PARADK999,"directory: /whoi/cg_whoi/OMC/CP02PMUO/D00002/imm/mmp, pattern: E*.DAT",,50
+CP02PMUO-WF001-01-VEL3DK999,"directory: /whoi/cg_whoi/OMC/CP02PMUO/D00002/imm/mmp, pattern: A*.DEC",,50
+CP02PMUO-RI001-01-ADCPSL999,"directory: /whoi/cg_whoi/OMC/CP02PMUO/D00002/imm/adcps, pattern: adcps_*_*.DAT",,50
+CP02PMUO-SB001,"cg_stc_eng.directory: /whoi/cg_whoi/OMC/CP02PMUO/D00002/irid2shore,cg_stc_eng.pattern: stc_status.*_*.txt,cg_stc_eng.frequency: 1,cg_stc_eng.file_mod_wait_time: 30",,50
