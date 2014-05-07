@@ -28,9 +28,6 @@ bin/pycc -x ion.agents.agentctrl.AgentControl op=clone_device preload_id="CP02PM
 echo 'Cloning deployments for CP02PMUO-WP001 and CP02PMUI-WP001'
 bin/pycc -x ion.agents.agentctrl.AgentControl op=clone_deployment preload_id="CP02PMUO-WP001_DEP,CP02PMUI-WP001_DEP" clone_id=CL1 recurse=True verbose=True cfg=$thisdir/clone_attributes.csv
 
-#echo 'Setting serial numbers for new cloned devices'
-#bin/pycc -x ion.agents.agentctrl.AgentControl op=set_attributes preload_id="CP02PMUO-WP001_PD_CL1,CP02PMUI-WP001_PD_CL1" recurse=True cfg=$thisdir/serial_numbers.csv
-
 echo 'Set agent instance config for CP02PMUO-WP001 and CP02PMUI-WP001'
 
 echo 'Activate persistence for CP02PMUO-WP001 and CP02PMUI-WP001'
