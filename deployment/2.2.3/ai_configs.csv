@@ -1,7 +1,7 @@
 ID,Harvester Config,Parser Config,Records Per Granule
-CP02PMUI-WF001,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: E*.DAT",,50
-CP02PMUI-WF001-03-CTDPFK999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: C*.DAT",,50
-CP02PMUI-WF001-02-DOFSTK999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: C*.DAT",,50
+CP02PMUI-WF001_PD_CL1,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: E*.DAT",,50
+CP02PMUI-WF001-03-CTDPFK999_ID_CL1,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: C*.DAT",,50
+CP02PMUI-WF001-02-DOFSTK999_ID_CL1,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: C*.DAT",,50
 CP02PMUI-WF001-04-FLORTK999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: E*.DAT",,50
 CP02PMUI-WF001-05-PARADK999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: E*.DAT",,50
 CP02PMUI-WF001-01-VEL3DK999,"directory: /whoi/cg_whoi/OMC/CP02PMUI/D00002/imm/mmp, pattern: A*.DEC",,50
