@@ -8,7 +8,7 @@ thisdir="$(dirname "$0")"
 #assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdFVUeDdoUTU0b0NFQ1dCVDhuUjY0THc&output=xls"
 
 # Copy of master
-preload_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdDhla3J3eHF1Y1Q3amtwLWpBZkNXX3c&output=xls"
+preload_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdEhOZ0NNMUtaUjFiam01Wno0TlVwaWc&output=xls"
 assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdEpVRjBxS2U2akVMOUkxS0dQLURDaFE&output=xls"
 
 rm -f /tmp/preload.xlsx
