@@ -40,6 +40,12 @@ bin/pycc -x ion.agents.agentctrl.AgentControl op=activate_persistence preload_id
 echo 'Activate deployment for CP02PMUO-WP001 and CP02PMUI-WP001 clones'
 bin/pycc -x ion.agents.agentctrl.AgentControl op=activate_deployment preload_id="CP02PMUO-WP001_PD_CL1,CP02PMUI-WP001_PD_CL1" verbose=True
 
+echo 'Set turned devices to INTEGRATED state'
+bin/pycc -x ion.agents.agentctrl.AgentControl op=set_lcstate  lcstate=INTEGRATED preload_id="CP02PMUO-WP001_PD,CP02PMUI-WP001_PD" recurse=True verbose=True
+
+echo 'Set cloned devices to DEPLOYED state'
+bin/pycc -x ion.agents.agentctrl.AgentControl op=set_lcstate  lcstate=DEPLOYED preload_id="CP02PMUO-WP001_PD_CL1,CP02PMUI-WP001_PD_CL1" recurse=True verbose=True
+
 if [ "X$1" != "XNORUN" ]; then
 echo 'Start agents for CP02PMUO-WP001 and CP02PMUI-WP001 clones'
 bin/pycc -x ion.agents.agentctrl.AgentControl op=start preload_id="CP02PMUO-WP001_PD_CL1,CP02PMUI-WP001_PD_CL1" recurse=True verbose=True
