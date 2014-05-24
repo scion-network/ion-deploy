@@ -1,8 +1,8 @@
 profile_type: nimbus-static
 iaas:
   site: ooi.ucsd
-  key: Rvp3nHCI03zGRGoOrBO1n
-  secret: xj8LRHvNkLsNEeK5zqmS4VAnwDMwdbgqu3hcRwxNcX
+  key: sbrxw9IOOOiTIWpEDC0Ks
+  secret: X3bGz7mU0iCnyFx06C3KIyUI3HNGwGWjADQJwnmy7L
   url: https://nimbus-prod.oceanobservatories.org:8444
   base-image: r2-worker
   base-allocation: m1.xlarge
