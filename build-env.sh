@@ -86,7 +86,7 @@ case $ION_NAME in
 	#export DTDATA_VERS="2.0.1"
 	export EPU_VERS="2.0.1"
 	export EPUAGENT_VERS="2.0.2"
-	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-$COI_VERS.tar.gz"
+	export COI_TAR="http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-master.tar.gz"
 	export PRELOAD_KEY="0Aq_8oD79eIi4dHpTOGV2bGZVNkJXd0J1ci1SX25zNXc"
         export ASSET_MAP_KEY="0ArzZOLNhEGVqdHA2MHNSX1dlT2ZTaHVrNVJzOG4xZnc"
         export UI_PATH="https://userexperience.oceanobservatories.org/database-exports/R3Candidates/"
