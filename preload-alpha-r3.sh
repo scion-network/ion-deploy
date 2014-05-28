@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 set -v
 
 # MASTER paths
@@ -9,11 +9,14 @@ assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdFV
 #preload_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdDNNZ2pDWENHdmY4bHM1UkU5Mlhpbmc&output=xls"
 #assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdHoxSWpva2pIN0UtenBoMmt4ODNFYVE&output=xls"
 
+preload_local=/tmp/a3_preload.xlsx
+assetmappings_local=/tmp/a3_assetmappings.xlsx
+
 ui_path="ui_path='https://userexperience.oceanobservatories.org/database-exports/R3Candidates/'"
 
-rm -f /tmp/preload.xlsx
-rm -f /tmp/assetmappings.xlsx
-curl -o /tmp/preload.xlsx $preload_path
-curl -o /tmp/assetmappings.xlsx $assetmappings_path
+rm -f $preload_local
+rm -f $assetmappings_local
+curl -o $preload_local $preload_path
+curl -o $assetmappings_local $assetmappings_path
 
-bin/pycc -D -x ion.processes.bootstrap.ion_loader.IONLoader $ui_path assets=res/preload/r2_ioc/ooi_assets cfg=res/preload/r2_ioc/config/ooi_alpha.yml path=$preload_path assetmappings=$assetmappings
+bin/pycc -D -x ion.processes.bootstrap.ion_loader.IONLoader $ui_path assets=res/preload/r2_ioc/ooi_assets cfg=res/preload/r2_ioc/config/ooi_alpha.yml path=$preload_local assetmappings=$assetmappings_local

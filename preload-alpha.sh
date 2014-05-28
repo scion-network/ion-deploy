@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 set -v
 
 # MASTER paths
@@ -11,9 +11,9 @@ assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdHA
 
 ui_path=""
 
-rm -f /tmp/preload.xlsx
-rm -f /tmp/assetmappings.xlsx
-curl -o /tmp/preload.xlsx $preload_path
-curl -o /tmp/assetmappings.xlsx $assetmappings_path
+rm -f $preload_local
+rm -f $assetmappings_local
+curl -o $preload_local $preload_path
+curl -o $assetmappings_local $assetmappings_path
 
-bin/pycc -D -x ion.processes.bootstrap.ion_loader.IONLoader $ui_path assets=res/preload/r2_ioc/ooi_assets cfg=res/preload/r2_ioc/config/ooi_alpha.yml path=$preload_path assetmappings=$assetmappings
+bin/pycc -D -x ion.processes.bootstrap.ion_loader.IONLoader $ui_path assets=res/preload/r2_ioc/ooi_assets cfg=res/preload/r2_ioc/config/ooi_alpha.yml path=$preload_local assetmappings=$assetmappings_local
