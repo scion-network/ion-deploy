@@ -42,6 +42,7 @@ case $ION_NAME in
 	export NAGIOS_HOST=nagios-pl.oceanobservatories.org
         export SG_HOST=sg.s.oceanobservatories.org
 	export UX_HOST=ooin.oceanobservatories.org
+	export MX_PORT=8080
 	export COI_VERS="2.1.4-dev"
 	#export DTDATA_VERS="2.0.1"
 	export EPU_VERS="2.0.1"
@@ -62,6 +63,7 @@ case $ION_NAME in
 	export NAGIOS_HOST=nagios-sd.oceanobservatories.org
         export SG_HOST=sg.b.oceanobservatories.org
 	export UX_HOST=ion-beta.oceanobservatories.org
+	export MX_PORT=8083
 	export COI_VERS="2.2.5"
 	#export DTDATA_VERS="2.0.1"
 	export EPU_VERS="2.0.1"
@@ -82,6 +84,7 @@ case $ION_NAME in
 	export NAGIOS_HOST=nagios-sd.oceanobservatories.org
         export SG_HOST=sg.b3.oceanobservatories.org
 	export UX_HOST=r3-beta.oceanobservatories.org
+	export MX_PORT=8084
 	export COI_VERS="2.2.3"
 	#export DTDATA_VERS="2.0.1"
 	export EPU_VERS="2.0.1"

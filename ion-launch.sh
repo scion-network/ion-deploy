@@ -99,15 +99,15 @@ sleep 15
 ceictl -n $RUN process list > $BUILD_LOG/process-list
 
 #### preload
-if [ "$LAUNCH_TYPE" == "launch" ]; then
-  echo "Running preload..."
-  cd $PYON_PATH
-  $PRELOAD
-  if [ $? != 0 ]; then
-    echo "Preload failed"
-    exit 1
-  fi
-fi
+#if [ "$LAUNCH_TYPE" == "launch" ]; then
+#  echo "Running preload..."
+#  cd $PYON_PATH
+#  $PRELOAD
+#  if [ $? != 0 ]; then
+#    echo "Preload failed"
+#    exit 1
+#  fi
+#fi
 
 #### clear policy cache
 echo "Clear policy cache"
@@ -124,4 +124,4 @@ ssh -t $UX_HOST "sudo /www/ux-maintenance.sh online"
 #### Enable pyon mx
 echo "Start pyon mx"
 cd $PYON_PATH
-nohup bin/pycc -D -n -o --mx container.containerui.association_graph=False > /dev/null 2>&1 &
+nohup bin/pycc -D -n -o --mx container.containerui.association_graph=False container.flask_webapp.port=$MX_PORT > /dev/null 2>&1 &
