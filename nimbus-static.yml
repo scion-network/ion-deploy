@@ -26,7 +26,7 @@ graylog:
 
 # Package versions
 packages:
-  coi_services: http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-2.2.5.tar.gz
+  coi_services: http://sddevrepo.oceanobservatories.org/releases/coi-services-ooici-REL2.0-2.2.6.tar.gz
 # if desired, include a list of hostnames here which will be DDNS-assigned
 # to the service gateway VMs. Ensure you have at least as many hostnames
 # as there will ever be VMs.
