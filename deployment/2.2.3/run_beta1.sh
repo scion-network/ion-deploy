@@ -5,11 +5,11 @@ thisdir="$(dirname "$0")"
 
 # MASTER paths
 #preload_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdG82NHZfSEJJOGdQTkgzb05aRjkzMEE&output=xls"
-#assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdFVUeDdoUTU0b0NFQ1dCVDhuUjY0THc&output=xls"
+assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0AttCeOvLP6XMdFVUeDdoUTU0b0NFQ1dCVDhuUjY0THc&output=xls"
 
 # Copy of master
 preload_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdEhOZ0NNMUtaUjFiam01Wno0TlVwaWc&output=xls"
-assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdEpVRjBxS2U2akVMOUkxS0dQLURDaFE&output=xls"
+#assetmappings_path="https://docs.google.com/spreadsheet/pub?key=0ArzZOLNhEGVqdEpVRjBxS2U2akVMOUkxS0dQLURDaFE&output=xls"
 
 rm -f /tmp/preload.xlsx
 rm -f /tmp/assetmappings.xlsx
