@@ -1,0 +1,14 @@
+# Manhole steps to set DataProduct lcstate to DEPLOYED
+# (Executed 6/4 on ooinet, ion-alpha. Affected 68 resources)
+
+# Load all DataProduct resources
+dps, _ = rr.find_resources("DataProduct", id_only=False)
+
+# Filter resources to cloned ones (will not work like this in the future)
+dps1 = [dp for dp in dps if "Cloned" in dp.description]
+
+# Set description to empty
+[setattr(dp,"description","") for dp in dps1]
+
+# Update resources
+[rr.update(dp) for dp in dps1]
