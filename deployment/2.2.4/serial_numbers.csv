@@ -156,23 +156,23 @@ CP02PMUI-WF001-05-PARADK999_ID_CL1,,,serial_number,20436,str,
 CP02PMUI-WF001-05-PARADK999_ID_CL1,Yes,,ooi_property_number,,str,
 ,,,,,,
 CE05MOAS-GL001,,,serial_number,319,str,
-CE05MOAS-GL001-01-PARADM999,Yes,,serial_number,,str,
-CE05MOAS-GL001-02-FLORTM999,Yes,,serial_number,,str,
-CE05MOAS-GL001-03-ADCPAM999,Yes,,serial_number,,str,
-CE05MOAS-GL001-04-DOSTAM999,Yes,,serial_number,,str,
-CE05MOAS-GL001-05-CTDGVM999,Yes,,serial_number,,str,
+CE05MOAS-GL001-01-PARADM999,,,serial_number,50147,str,Biospherical Instruments QSP2155
+CE05MOAS-GL001-02-FLORTM999,,,serial_number,2762,str,Wet Labs
+CE05MOAS-GL001-03-ADCPAM999,,,serial_number,648292,str,RDI Explorer
+CE05MOAS-GL001-04-DOSTAM999,,,serial_number,29,str,Optode 4831
+CE05MOAS-GL001-05-CTDGVM999,,,serial_number,9023,str,Sea-Bird
 CE05MOAS-GL002,,,serial_number,312,str,
-CE05MOAS-GL002-01-PARADM999,Yes,,serial_number,,str,
-CE05MOAS-GL002-02-FLORTM999,Yes,,serial_number,,str,
-CE05MOAS-GL002-03-ADCPAM999,Yes,,serial_number,,str,
-CE05MOAS-GL002-04-DOSTAM999,Yes,,serial_number,,str,
-CE05MOAS-GL002-05-CTDGVM999,Yes,,serial_number,,str,
+CE05MOAS-GL002-01-PARADM999,,,serial_number,50146,str,Biospherical Instruments QSP2155
+CE05MOAS-GL002-02-FLORTM999,,,serial_number,2761,str,Wet Labs
+CE05MOAS-GL002-03-ADCPAM999,,,serial_number,642932,str,RDI Explorer
+CE05MOAS-GL002-04-DOSTAM999,,,serial_number,27,str,Optode 4831
+CE05MOAS-GL002-05-CTDGVM999,,,serial_number,9015,str,Sea-Bird
 CE05MOAS-GL003,,,serial_number,386,str,
-CE05MOAS-GL003-01-PARADM999,Yes,,serial_number,,str,
-CE05MOAS-GL003-02-FLORTM999,Yes,,serial_number,,str,
-CE05MOAS-GL003-03-ADCPAM999,Yes,,serial_number,,str,
-CE05MOAS-GL003-04-DOSTAM999,Yes,,serial_number,,str,
-CE05MOAS-GL003-05-CTDGVM999,Yes,,serial_number,,str,
+CE05MOAS-GL003-01-PARADM999,,,serial_number,50164,str,Biospherical Instruments QSP2155
+CE05MOAS-GL003-02-FLORTM999,,,serial_number,3186,str,Wet Labs
+CE05MOAS-GL003-03-ADCPAM999,,,serial_number,652696,str,RDI Explorer
+CE05MOAS-GL003-04-DOSTAM999,,,serial_number,176,str,Optode 4831
+CE05MOAS-GL003-05-CTDGVM999,,,serial_number,9086,str,Sea-Bird
 CE05MOAS-GL004,,,serial_number,247,str,
 CE05MOAS-GL005,,,serial_number,320,str,
 CE05MOAS-GL006,,,serial_number,326,str,
@@ -211,23 +211,23 @@ CE05MOAS-GL011,Yes,,ooi_property_number,,str,
 CE05MOAS-GL012,Yes,,ooi_property_number,,str,
 ,,,,,,
 CP05MOAS-GL001,,,serial_number,374,str,
-CP05MOAS-GL001-01-ADCPAM999,Yes,,serial_number,,str,
-CP05MOAS-GL001-02-FLORTM999,Yes,,serial_number,,str,
-CP05MOAS-GL001-03-CTDGVM999,Yes,,serial_number,,str,
-CP05MOAS-GL001-04-DOSTAM999,Yes,,serial_number,,str,
-CP05MOAS-GL001-05-PARADM999,Yes,,serial_number,,str,
+CP05MOAS-GL001-01-ADCPAM999,,,serial_number,2129190,str,RDI Explorer
+CP05MOAS-GL001-02-FLORTM999,,,serial_number,2819,str,Wet Labs
+CP05MOAS-GL001-03-CTDGVM999,,,serial_number,9083,str,Sea-Bird
+CP05MOAS-GL001-04-DOSTAM999,,,serial_number,145,str,Optode 4831
+CP05MOAS-GL001-05-PARADM999,,,serial_number,50157,str,Biospherical Instruments QSP2155
 CP05MOAS-GL002,,,serial_number,379,str,
-CP05MOAS-GL002-01-ADCPAM999,Yes,,serial_number,,str,
-CP05MOAS-GL002-02-FLORTM999,Yes,,serial_number,,str,
-CP05MOAS-GL002-03-CTDGVM999,Yes,,serial_number,,str,
-CP05MOAS-GL002-04-DOSTAM999,Yes,,serial_number,,str,
-CP05MOAS-GL002-05-PARADM999,Yes,,serial_number,,str,
+CP05MOAS-GL002-01-ADCPAM999,,,serial_number,649982,str,RDI Explorer
+CP05MOAS-GL002-02-FLORTM999,,,serial_number,3116,str,Wet Labs
+CP05MOAS-GL002-03-CTDGVM999,,,serial_number,9057,str,Sea-Bird
+CP05MOAS-GL002-04-DOSTAM999,,,serial_number,178,str,Optode 4831
+CP05MOAS-GL002-05-PARADM999,,,serial_number,50158,str,Biospherical Instruments QSP2155
 CP05MOAS-GL003,,,serial_number,387,str,
-CP05MOAS-GL003-01-ADCPAM999,Yes,,serial_number,,str,
-CP05MOAS-GL003-02-FLORTM999,Yes,,serial_number,,str,
-CP05MOAS-GL003-03-CTDGVM999,Yes,,serial_number,,str,
-CP05MOAS-GL003-04-DOSTAM999,Yes,,serial_number,,str,
-CP05MOAS-GL003-05-PARADM999,Yes,,serial_number,,str,
+CP05MOAS-GL003-01-ADCPAM999,,,serial_number,654587,str,RDI Explorer
+CP05MOAS-GL003-02-FLORTM999,,,serial_number,3190,str,Wet Labs
+CP05MOAS-GL003-03-CTDGVM999,,,serial_number,9087,str,Sea-Bird
+CP05MOAS-GL003-04-DOSTAM999,,,serial_number,173,str,Optode 4831
+CP05MOAS-GL003-05-PARADM999,,,serial_number,50165,str,Biospherical Instruments QSP2155
 CP05MOAS-GL004,,,serial_number,340,str,
 CP05MOAS-GL005,,,serial_number,335,str,
 CP05MOAS-GL006,,,serial_number,375,str,
