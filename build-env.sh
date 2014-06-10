@@ -64,7 +64,7 @@ case $ION_NAME in
         export SG_HOST=sg.b.oceanobservatories.org
 	export UX_HOST=ion-beta.oceanobservatories.org
 	export MX_PORT=8083
-	export COI_VERS="2.2.5"
+	export COI_VERS="2.2.6"
 	#export DTDATA_VERS="2.0.1"
 	export EPU_VERS="2.0.1"
 	export EPUAGENT_VERS="2.0.2"
