@@ -5,13 +5,10 @@
 __author__ = 'Michael Meisinger'
 
 import argparse
-import csv
 import datetime
 import json
 import pprint
 import os
-import requests
-from requests.auth import HTTPBasicAuth
 import shutil
 import time
 import yaml
@@ -30,6 +27,7 @@ class IonDiagnose(object):
         parser.add_argument('-d', '--info_dir', type=str, help='System info directory')
         parser.add_argument('-l', '--load_info', action='store_true', help="Load from system info directory")
         parser.add_argument('-n', '--no_save', action='store_true', help="Don't store system info")
+        parser.add_argument('-v', '--verbose', action='store_true', help="Verbose output")
         self.opts, self.extra = parser.parse_known_args()
 
     def read_config(self, filename=None):
@@ -45,6 +43,7 @@ class IonDiagnose(object):
             self.cfg = yaml.load(cfg_str)
         if not self.cfg:
             self._errout("No config")
+        self.sysname = self.cfg["system"]["name"]
 
     def get_system_info(self):
         # Read rabbit
@@ -56,6 +55,8 @@ class IonDiagnose(object):
         # Read info from CEIctrl
 
     def _get_rabbit_info(self):
+        import requests
+        from requests.auth import HTTPBasicAuth
         mgmt = self.cfg["container"]["exchange"]["management"]
         url_prefix = "http://%s:%s" % (mgmt["host"], mgmt["port"])
         print "Getting RabbitMQ info from %s" % url_prefix
@@ -91,7 +92,7 @@ class IonDiagnose(object):
 
         db_info = self.sysinfo.setdefault("db", {})
         pgcfg = self.cfg["server"]["postgresql"]
-        db_name = "%s_%s" % (self.cfg["system"]["name"].lower(), pgcfg["database"])
+        db_name = "%s_%s" % (self.sysname.lower(), pgcfg["database"])
 
         dsn = "host=%s port=%s dbname=%s user=%s password=%s" % (pgcfg["host"], pgcfg["port"], db_name, pgcfg["username"], pgcfg["password"])
         with psycopg2.connect(dsn) as conn:
@@ -188,11 +189,39 @@ class IonDiagnose(object):
     def _analyze(self):
         print "Analyzing system info"
         self._res_by_type = {}
-        self._res_by_id = self.sysinfo.get("db", {}).get("resources", None)
+        self._res_by_id = self.sysinfo.get("db", {}).get("resources", {})
         if self._res_by_id:
             for res in self._res_by_id.values():
                 self._res_by_type.setdefault(res.get("type_", "?"), []).append(res)
         self._services = {str(res["name"]) for res in self._res_by_type.get("ServiceDefinition", {})}
+        print " ...found %s services in RR" % len(self._services)
+
+        self._agents = {}
+        self._agent_by_resid = {}
+        directory = self.sysinfo.get("db", {}).get("directory", None)
+        if directory:
+            for de in directory.values():
+                if de["parent"] == "/Agents":
+                    attrs = de["attributes"]
+                    agent_type = "?"
+                    agent_name = attrs.get("name", "")
+                    resource_id = attrs.get("resource_id", "")
+                    if agent_name.startswith("eeagent"):
+                        agent_type = "EEAgent"
+                    elif agent_name.startswith("haagent"):
+                        agent_type = "HAAgent"
+                    elif "ExternalDatasetAgent" in agent_name:
+                        agent_type = "DatasetAgent"
+                    elif "InstrumentAgent" in agent_name:
+                        agent_type = "InstrumentAgent"
+                    elif "PlatformAgent" in agent_name:
+                        agent_type = "PlatformAgent"
+                    if de["key"] in self._agents:
+                        print "  WARN: Agent %s multiple times in directory" % de["key"]
+                    self._agents[de["key"]] = dict(key=de["key"], agent_name=agent_name, agent_type=agent_type)
+                    if resource_id and resource_id in self._res_by_id:
+                        self._agent_by_resid[resource_id] = de["key"]
+            print " ...found %s agents in directory (%s for resources)" % (len(self._agents), len(self._agent_by_resid))
 
     def _diag_rabbit(self):
         print "Analyzing RabbitMQ info..."
@@ -203,14 +232,39 @@ class IonDiagnose(object):
         named_queues_cons = [q for q in named_queues if q["consumers"]]
         print " ...found %s named queues (%s with consumers)" % (len(named_queues), len(named_queues_cons))
 
-        service_queues = [q for q in named_queues if q["name"].split(".", 1)[-1] in self._services]
-        service_queues_cons = [q for q in service_queues if q["consumers"]]
-        print " ...found %s service queues (%s with consumers)" % (len(service_queues), len(service_queues_cons))
-
-
         anon_queues = [q for q in queues if q["name"].startswith("amq")]
         anon_queues_cons = [q for q in anon_queues if q["consumers"]]
         print " ...found %s anonymous queues (%s with consumers)" % (len(anon_queues), len(anon_queues_cons))
+
+        # Check service queues
+        service_queues = [q for q in named_queues if q["name"].split(".", 1)[-1] in self._services]
+        service_queues_cons = [q for q in service_queues if q["consumers"]]
+        print " ...found %s service queues (%s with consumers)" % (len(service_queues), len(service_queues_cons))
+        for q in service_queues:
+            if not q["consumers"]:
+                print "  WARN: service queue %s has %s consumers" % (q["name"], q["consumers"])
+            elif self.opts.verbose:
+                print "  service queue %s: %s consumers" % (q["name"], q["consumers"])
+
+        # Check agent process id queues
+        agent_queues = [q for q in named_queues if q["name"].split(".", 1)[-1] in self._agents]
+        agent_queues_cons = [q for q in agent_queues if q["consumers"]]
+        print " ...found %s agent process id queues (%s with consumers)" % (len(agent_queues), len(agent_queues_cons))
+        for q in agent_queues:
+            if not q["consumers"]:
+                agent_key = q["name"].split(".", 1)[-1]
+                print "  WARN: agent process id queue %s (%s, %s) has %s consumers" % (q["name"], self._agents[agent_key]["agent_type"], self._agents[agent_key]["agent_name"], q["consumers"])
+
+        # Check agent device id queues
+        agent_queues = [q for q in named_queues if q["name"].split(".", 1)[-1] in self._agent_by_resid]
+        agent_queues_cons = [q for q in agent_queues if q["consumers"]]
+        print " ...found %s agent device id queues (%s with consumers)" % (len(agent_queues), len(agent_queues_cons))
+        for q in agent_queues:
+            if not q["consumers"]:
+                agent_key = self._agent_by_resid[q["name"].split(".", 1)[-1]]
+                print "  WARN: agent device id queue %s (%s, %s) has %s consumers" % (q["name"], self._agents[agent_key]["agent_type"], self._agents[agent_key]["agent_name"], q["consumers"])
+
+        #pprint.pprint(sorted(q["name"] for q in named_queues))
 
     def _diag_db(self):
         pass
