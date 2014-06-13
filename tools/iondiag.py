@@ -11,9 +11,10 @@ import pprint
 import os
 import shutil
 import time
+import threading
 import yaml
 import sys
-
+import Queue
 
 class IonDiagnose(object):
 
@@ -23,11 +24,13 @@ class IonDiagnose(object):
     def init_args(self):
         print "OOINet iondiag"
         parser = argparse.ArgumentParser(description="OOINet iondiag")
-        parser.add_argument('-c', '--config', type=str, help='File path to config file', default=[])
+        parser.add_argument('-c', '--config', type=str, help='File path to config file', default="")
         parser.add_argument('-d', '--info_dir', type=str, help='System info directory')
         parser.add_argument('-l', '--load_info', action='store_true', help="Load from system info directory")
         parser.add_argument('-n', '--no_save', action='store_true', help="Don't store system info")
+        parser.add_argument('-i', '--interactive', action='store_true', help="Drop into interactive shell")
         parser.add_argument('-v', '--verbose', action='store_true', help="Verbose output")
+        parser.add_argument('-o', '--only_do', type=str, help='Restict diag to D, R, C', default="")
         self.opts, self.extra = parser.parse_known_args()
 
     def read_config(self, filename=None):
@@ -47,12 +50,16 @@ class IonDiagnose(object):
 
     def get_system_info(self):
         # Read rabbit
-        self._get_rabbit_info()
+        if not self.opts.only_do or "R" in self.opts.only_do.upper():
+            self._get_rabbit_info()
 
         # Read resources from postgres
-        self._get_db_info()
+        if not self.opts.only_do or "D" in self.opts.only_do.upper():
+            self._get_db_info()
 
         # Read info from CEIctrl
+        if not self.opts.only_do or "C" in self.opts.only_do.upper():
+            self._get_cei_info()
 
     def _get_rabbit_info(self):
         import requests
@@ -87,15 +94,8 @@ class IonDiagnose(object):
         print " ...retrieved %s bindings" % (len(rabbit_info["bindings"]))
 
     def _get_db_info(self):
-        import psycopg2
-        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-
-        db_info = self.sysinfo.setdefault("db", {})
-        pgcfg = self.cfg["server"]["postgresql"]
-        db_name = "%s_%s" % (self.sysname.lower(), pgcfg["database"])
-
-        dsn = "host=%s port=%s dbname=%s user=%s password=%s" % (pgcfg["host"], pgcfg["port"], db_name, pgcfg["username"], pgcfg["password"])
-        with psycopg2.connect(dsn) as conn:
+        conn, dsn = self._get_db_connection()
+        try:
             print "Getting DB info from PostgreSQL as:", dsn.rsplit("=", 1)[0] + "=***"
             conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
             with conn.cursor() as cur:
@@ -116,6 +116,76 @@ class IonDiagnose(object):
                     dir_entries[dir_id] = dir_doc
                 print " ...retrieved %s directory entries" % (len(dir_entries))
                 db_info["directory"] = dir_entries
+        finally:
+            conn.close()
+
+    def _get_db_connection(self):
+        import psycopg2
+        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
+        db_info = self.sysinfo.setdefault("db", {})
+        pgcfg = self.cfg["server"]["postgresql"]
+        db_name = "%s_%s" % (self.sysname.lower(), pgcfg["database"])
+
+        dsn = "host=%s port=%s dbname=%s user=%s password=%s" % (pgcfg["host"], pgcfg["port"], db_name, pgcfg["username"], pgcfg["password"])
+        return psycopg2.connect(dsn), dsn
+
+    def _get_cei_info(self):
+        cei_info = self.sysinfo.setdefault("cei", {})
+
+        zk = self._get_zoo_connection()
+        start_node = "/" + self.sysname
+        if not zk.exists(start_node):
+            self._errout("Cannot find start node %s" % start_node)
+        zk.stop()
+
+        self.queue = Queue.Queue()
+        self.queue.put(start_node)
+        num_threads = 20
+        res_info, threads = [], []
+        for i in range(num_threads):
+            th_info = {}
+            res_info.append(th_info)
+            t = threading.Thread(target=self._zoo_get_thread, args=(th_info, i))
+            t.daemon = True
+            t.start()
+            threads.append(t)
+
+        for t in threads:
+            t.join()
+
+        zoo_info = {}
+        for th_info in res_info:
+            zoo_info.update(th_info)
+        cei_info["zoo"] = zoo_info
+        print " ...retrieved %s CEI nodes" % (len(zoo_info))
+
+    def _get_zoo_connection(self):
+        from kazoo.client import KazooClient
+        zkcfg = self.cfg["server"]["zookeeper"]
+        zk = KazooClient(hosts=zkcfg["hosts"])
+        zk.start()
+        return zk
+
+    def _zoo_get_thread(self, th_info, num):
+        zk = self._get_zoo_connection()
+        try:
+            node = self.queue.get(True, 2)
+            while node:
+                data, stats = zk.get(node)
+                try:
+                    th_info[node] = json.loads(data) if data else {}
+                except Exception:
+                    th_info[node] = dict(error=True, value=data)
+                ch_nodes = zk.get_children(node)
+                for ch in ch_nodes:
+                    ch_node = node + "/" + ch
+                    self.queue.put(ch_node)
+                node = self.queue.get(True, 0.5)
+        except Queue.Empty:
+            pass
+
+        zk.stop()
 
     def save_info_files(self):
         if self.opts.info_dir:
@@ -140,6 +210,10 @@ class IonDiagnose(object):
         db_info = self.sysinfo.get("db", None)
         self._save_file(db_pre, "resources", db_info)
         self._save_file(db_pre, "directory", db_info)
+
+        cei_pre = "%s/%s" % (path, "cei")
+        cei_info = self.sysinfo.get("cei", None)
+        self._save_file(cei_pre, "zoo", cei_info)
 
     def _save_file(self, prefix, part, content):
         if not content:
@@ -170,6 +244,10 @@ class IonDiagnose(object):
         self._read_file(db_pre, "resources", db_info)
         self._read_file(db_pre, "directory", db_info)
 
+        cei_pre = "%s/%s" % (path, "cei")
+        cei_info = self.sysinfo.setdefault("cei", {})
+        self._read_file(cei_pre, "zoo", cei_info)
+
     def _read_file(self, prefix, part, content):
         if content is None:
             return
@@ -184,7 +262,15 @@ class IonDiagnose(object):
 
     def diagnose(self):
         self._analyze()
-        self._diag_rabbit()
+
+        if not self.opts.only_do or "R" in self.opts.only_do.upper():
+            self._diag_rabbit()
+
+        if not self.opts.only_do or "D" in self.opts.only_do.upper():
+            self._diag_db()
+
+        if not self.opts.only_do or "C" in self.opts.only_do.upper():
+            self._diag_cei()
 
     def _analyze(self):
         print "Analyzing system info"
@@ -222,6 +308,44 @@ class IonDiagnose(object):
                     if resource_id and resource_id in self._res_by_id:
                         self._agent_by_resid[resource_id] = de["key"]
             print " ...found %s agents in directory (%s for resources)" % (len(self._agents), len(self._agent_by_resid))
+
+        self._zoo_parents = {}
+        self._epus = {}
+        zoo = self.sysinfo.get("cei", {}).get("zoo", None)
+        if zoo:
+            zoo_parents = {}
+            for key, entry in zoo.iteritems():
+                par, loc = key.rsplit("/", 1)
+                zoo_parents.setdefault(par, []).append(key)
+            self._zoo_parents = zoo_parents
+
+            epus = {}
+            sys_key = "/" + self.sysname + "/"
+            epum_key = sys_key + "epum/domains/cc"
+            for epu in self._zoo_parents.get(epum_key, []):
+                epu_data = zoo[epu]
+                epu_name = epu.rsplit("/", 1)[-1]
+                epu_entry = dict(name=epu_name,
+                                 num_vm=epu_data.get("engine_conf", {}).get("preserve_n", 0),
+                                 num_cc=epu_data.get("engine_conf", {}).get("provisioner_vars", {}).get("replicas", 0),
+                                 num_proc=epu_data.get("engine_conf", {}).get("provisioner_vars", {}).get("slots", 0))
+                epu_entry["max_slots"] = epu_entry["num_vm"]*epu_entry["num_cc"]*epu_entry["num_proc"]
+                self._epus[epu_name] = epu_entry
+                for epui in self._zoo_parents.get(epu + "/instances", []):
+                    epui_data = zoo[epui]
+                    epui_name = epui.rsplit("/", 1)[-1]
+                    epui_entry = dict(name=epui_name,
+                                      public_ip=epui_data["public_ip"],
+                                      hostname=epui_data["hostname"],
+                                      state=epui_data["state"])
+                    #print "  EPUI %s: %s %s" % (epui_entry["name"], epui_entry["public_ip"], epui_entry["state"], )
+                    if epui_entry["state"] == "600-RUNNING":
+                        epu_entry.setdefault("instances", {})[epui_name] = epui_entry
+
+                print " EPU %s: %s VM, %s CC, %s Proc. %s slots, %s running instances" % (epu_entry["name"], epu_entry["num_vm"],
+                                                                   epu_entry["num_cc"], epu_entry["num_proc"], epu_entry["max_slots"],
+                                                                   len(epu_entry.get("instances", {})))
+
 
     def _diag_rabbit(self):
         print "Analyzing RabbitMQ info..."
@@ -269,6 +393,9 @@ class IonDiagnose(object):
     def _diag_db(self):
         pass
 
+    def _diag_cei(self):
+        pass
+
     def _errout(self, msg=None):
         if msg:
             print "ERROR:", msg
@@ -287,7 +414,12 @@ class IonDiagnose(object):
             if not self.opts.no_save:
                 self.save_info_files()
 
+
         self.diagnose()
+
+        if self.opts.interactive:
+            from IPython import embed
+            embed()
 
 def entry():
     diag = IonDiagnose()
