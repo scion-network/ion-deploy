@@ -309,44 +309,6 @@ class IonDiagnose(object):
                         self._agent_by_resid[resource_id] = de["key"]
             print " ...found %s agents in directory (%s for resources)" % (len(self._agents), len(self._agent_by_resid))
 
-        self._zoo_parents = {}
-        self._epus = {}
-        zoo = self.sysinfo.get("cei", {}).get("zoo", None)
-        if zoo:
-            zoo_parents = {}
-            for key, entry in zoo.iteritems():
-                par, loc = key.rsplit("/", 1)
-                zoo_parents.setdefault(par, []).append(key)
-            self._zoo_parents = zoo_parents
-
-            epus = {}
-            sys_key = "/" + self.sysname + "/"
-            epum_key = sys_key + "epum/domains/cc"
-            for epu in self._zoo_parents.get(epum_key, []):
-                epu_data = zoo[epu]
-                epu_name = epu.rsplit("/", 1)[-1]
-                epu_entry = dict(name=epu_name,
-                                 num_vm=epu_data.get("engine_conf", {}).get("preserve_n", 0),
-                                 num_cc=epu_data.get("engine_conf", {}).get("provisioner_vars", {}).get("replicas", 0),
-                                 num_proc=epu_data.get("engine_conf", {}).get("provisioner_vars", {}).get("slots", 0))
-                epu_entry["max_slots"] = epu_entry["num_vm"]*epu_entry["num_cc"]*epu_entry["num_proc"]
-                self._epus[epu_name] = epu_entry
-                for epui in self._zoo_parents.get(epu + "/instances", []):
-                    epui_data = zoo[epui]
-                    epui_name = epui.rsplit("/", 1)[-1]
-                    epui_entry = dict(name=epui_name,
-                                      public_ip=epui_data["public_ip"],
-                                      hostname=epui_data["hostname"],
-                                      state=epui_data["state"])
-                    #print "  EPUI %s: %s %s" % (epui_entry["name"], epui_entry["public_ip"], epui_entry["state"], )
-                    if epui_entry["state"] == "600-RUNNING":
-                        epu_entry.setdefault("instances", {})[epui_name] = epui_entry
-
-                print " EPU %s: %s VM, %s CC, %s Proc. %s slots, %s running instances" % (epu_entry["name"], epu_entry["num_vm"],
-                                                                   epu_entry["num_cc"], epu_entry["num_proc"], epu_entry["max_slots"],
-                                                                   len(epu_entry.get("instances", {})))
-
-
     def _diag_rabbit(self):
         print "Analyzing RabbitMQ info..."
         queues = self.sysinfo.get("rabbit", {}).get("queues", {})
@@ -391,10 +353,171 @@ class IonDiagnose(object):
         #pprint.pprint(sorted(q["name"] for q in named_queues))
 
     def _diag_db(self):
-        pass
+        print "Analyzing DB info..."
 
     def _diag_cei(self):
-        pass
+        print "Analyzing CEI info..."
+        self._zoo_parents = {}
+        self._epus = {}
+        self._epuis = {}
+        self._ees = {}
+        self._allprocs = {}
+        self._procs = {}
+        self._oldprocs = {}
+        self._badprocs = {}
+        self._proc_by_type = {}
+        self._proc_by_epu = {}
+        self._proc_by_epui = {}
+        zoo = self.sysinfo.get("cei", {}).get("zoo", None)
+        if not zoo:
+            return
+        zoo_parents = {}
+        for key, entry in zoo.iteritems():
+            par, loc = key.rsplit("/", 1)
+            zoo_parents.setdefault(par, []).append(key)
+        self._zoo_parents = zoo_parents
+
+        sys_key = "/" + self.sysname
+        epum_key = sys_key + "/epum/domains/cc"
+        for epu in self._zoo_parents.get(epum_key, []):
+            epu_data = zoo[epu]
+            epu_name = epu.rsplit("/", 1)[-1]
+            epu_entry = dict(name=epu_name,
+                             num_vm=epu_data.get("engine_conf", {}).get("preserve_n", 0),
+                             num_cc=epu_data.get("engine_conf", {}).get("provisioner_vars", {}).get("replicas", 0),
+                             num_proc=epu_data.get("engine_conf", {}).get("provisioner_vars", {}).get("slots", 0))
+            epu_entry["max_slots"] = epu_entry["num_vm"]*epu_entry["num_cc"]*epu_entry["num_proc"]
+            self._epus[epu_name] = epu_entry
+            for epui in self._zoo_parents.get(epu + "/instances", []):
+                epui_data = zoo[epui]
+                epui_name = epui.rsplit("/", 1)[-1]
+                epui_entry = dict(name=epui_name,
+                                  epu=epu_name,
+                                  public_ip=epui_data["public_ip"],
+                                  hostname=epui_data["hostname"],
+                                  state=epui_data["state"],
+                                  max_slots=epu_entry["num_cc"]*epu_entry["num_proc"])
+                #print "  EPUI %s: %s %s" % (epui_entry["name"], epui_entry["public_ip"], epui_entry["state"], )
+                if epui_entry["state"] == "600-RUNNING":
+                    self._epuis[epui_name] = epui_entry
+                    epu_entry.setdefault("instances", {})[epui_name] = epui_entry
+                else:
+                    print "  WARN: EPU instance %s state: %s" % (epui_name, epui_entry["state"])
+
+            print " EPU %s: %s VM, %s CC, %s Proc. %s slots, %s running instances" % (epu_entry["name"], epu_entry["num_vm"],
+                                                               epu_entry["num_cc"], epu_entry["num_proc"], epu_entry["max_slots"],
+                                                               len(epu_entry.get("instances", {})))
+
+        total_ee_procs = 0
+        procs_in_ee = []
+        pd_ee_key = sys_key + "/pd/resources"
+        for ee in self._zoo_parents.get(pd_ee_key, []):
+            ee_data = zoo[ee]
+            ee_name = ee_data["resource_id"]
+            ee_entry = dict(name=ee_name, node_id=ee_data["node_id"], state=ee_data["state"],
+                            epu=self._epuis[ee_data["node_id"]]["epu"],
+                            hostname=self._epuis[ee_data["node_id"]]["hostname"],
+                            num_procs=len(ee_data["assigned"]))
+            self._ees[ee_name] = ee_entry
+            if ee_entry["state"] != "OK":
+                print "  WARN: EE %s state: %s" % (ee_name, ee_entry["state"])
+            if not ee_data["assigned"]:
+                print "  WARN: EE %s %s/%s (%s) has no processes (state %s)" % (ee_name, ee_entry["epu"], ee_entry["node_id"], ee_entry["hostname"], ee_entry["state"])
+            total_ee_procs += len(ee_data["assigned"])
+            procs_in_ee.extend(x[1] for x in ee_data["assigned"])
+
+        print " Number of EE: %s, total processes: %s" % (len(self._ees), total_ee_procs)
+        if len(procs_in_ee) != len(set(procs_in_ee)):
+            print " WARN: Process to EE assignment not unique"
+
+        pd_procs_key = sys_key + "/pd/processes"
+        for proc in self._zoo_parents.get(pd_procs_key, []):
+            proc_data = zoo[proc]
+            proc_id = proc_data["upid"]
+            ee_data = self._ees.get(proc_data["assigned"], {})
+            proc_entry = dict(upid=proc_id, ee=proc_data["assigned"], name=proc_data["name"], num_starts=proc_data["starts"],
+                              restart_mode=proc_data["restart_mode"], queueing_mode=proc_data["queueing_mode"],
+                              state=proc_data["state"],
+                              node_id=ee_data.get("node_id", ""),
+                              epu=ee_data.get("epu", ""),
+                              hostname=ee_data.get("hostname", ""))
+            if proc_entry["state"] == "500-RUNNING":
+                self._procs[proc_id] = proc_entry
+                self._proc_by_epui.setdefault(ee_data["node_id"], []).append(proc_id)
+                self._proc_by_epu.setdefault(ee_data["epu"], []).append(proc_id)
+            elif proc_entry["state"] in {"700-TERMINATED", "800-EXITED"}:
+                self._oldprocs[proc_id] = proc_entry
+            else:
+                self._badprocs[proc_id] = proc_entry
+            self._allprocs[proc_id] = proc_entry
+
+            if proc_entry["name"].startswith("haagent"):
+                self._proc_by_type.setdefault("ha_agent", []).append(proc_id)
+            elif proc_entry["name"].startswith("ingestion_worker_process"):
+                self._proc_by_type.setdefault("ingest_worker", []).append(proc_id)
+            elif proc_entry["name"].startswith("qc_post_processor"):
+                self._proc_by_type.setdefault("qc_worker", []).append(proc_id)
+            elif proc_entry["name"].startswith("lightweight_pydap"):
+                self._proc_by_type.setdefault("pydap", []).append(proc_id)
+            elif proc_entry["name"].startswith("vis_user_queue_monitor"):
+                self._proc_by_type.setdefault("vis_user_queue_monitor", []).append(proc_id)
+            elif proc_entry["name"].startswith("registration_worker"):
+                self._proc_by_type.setdefault("registration_worker", []).append(proc_id)
+            elif proc_entry["name"].startswith("event_persister"):
+                self._proc_by_type.setdefault("event_persister", []).append(proc_id)
+            elif proc_entry["name"].startswith("notification_worker_process"):
+                self._proc_by_type.setdefault("notification_worker", []).append(proc_id)
+            elif proc_entry["name"].startswith("HIGHCHARTS"):
+                self._proc_by_type.setdefault("rt_viz", []).append(proc_id)
+            elif proc_entry["name"].split("-", 1)[0] in self._services:
+                self._proc_by_type.setdefault("svc_worker", []).append(proc_id)
+            elif "InstrumentAgent" in proc_id:
+                self._proc_by_type.setdefault("instrument_agent", []).append(proc_id)
+            elif "PlatformAgent" in proc_id:
+                self._proc_by_type.setdefault("platform_agent", []).append(proc_id)
+            elif "ExternalDatasetAgent" in proc_id:
+                self._proc_by_type.setdefault("dataset_agent", []).append(proc_id)
+            elif "bootstrap" in proc_entry["name"]:
+                self._proc_by_type.setdefault("bootstrap", []).append(proc_id)
+            else:
+                print "  Cannot categorize process %s %s" % (proc_id, proc_entry["name"])
+
+        print " ...found %s EPUs, %s EEs, %s processes" % (len(self._epus), len(self._ees), len(self._procs))
+
+        unaccounted_procs = set(procs_in_ee) - set(self._procs.keys()) - set(self._badprocs.keys())
+        if unaccounted_procs:
+            print " WARN: Unaccounted for processes: %s", unaccounted_procs
+
+        for ptype in sorted(self._proc_by_type.keys()):
+            procs = self._proc_by_type[ptype]
+            ok_procs = [True for pid in procs if pid in self._procs]
+            proc_by_state = {}
+            [proc_by_state.setdefault(self._badprocs[pid]["state"], []).append(pid) for pid in procs if pid in self._badprocs]
+            [proc_by_state.setdefault(self._oldprocs[pid]["state"], []).append(pid) for pid in procs if pid in self._oldprocs]
+            proc_state = ", ".join(["%s: %s" % (pst, len(proc_by_state[pst])) for pst in sorted(proc_by_state.keys())])
+            print " Process type %s: 500-RUNNING: %s, %s (%s total)" % (ptype, len(ok_procs), proc_state, len(procs))
+            for pst in sorted(proc_by_state.keys()):
+                if pst in {"500-RUNNING", "700-TERMINATED", "800-EXITED"}:
+                    continue
+                procs1 = proc_by_state[pst]
+                for pid in procs1:
+                    proc_data = self._allprocs[pid]
+                    print "  WARN: Proc %s on %s/%s %s state: %s" % (pid, proc_data["epu"], proc_data["node_id"], proc_data["hostname"], pst)
+
+        # Check EPU slots vs. used
+        for epu in sorted(self._proc_by_epu.keys()):
+            epu_procs = self._proc_by_epu[epu]
+            epu_data = self._epus[epu]
+            print " EPU %s: %s total, %s used" % (epu, epu_data["max_slots"], len(epu_procs))
+
+            for epui in sorted(epu_data["instances"]):
+                if epui in self._proc_by_epui:
+                    epui_procs = self._proc_by_epui[epui]
+                    epui_data = self._epuis[epui]
+                    print "  EPU instance %s: %s total, %s used" % (epui, epui_data["max_slots"], len(epui_procs))
+                else:
+                    epui_data = self._epuis[epui]
+                    print "  WARN: EPU instance %s (%s) has no processes" % (epui, epui_data["hostname"])
 
     def _errout(self, msg=None):
         if msg:
