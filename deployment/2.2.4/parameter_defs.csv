@@ -1,0 +1,4 @@
+ID,Ignore,Attribute,Name,Value,Type,Comment
+PD1527,,parameter_context,display_name,Pressure decibar,str,
+PD1527,,parameter_context,description,Pressure decibar,str,
+PD1527,,parameter_context.param_type,uom,decibar,str,
