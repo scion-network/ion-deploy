@@ -405,6 +405,7 @@ class IonDiagnose(object):
             epu_data = zoo[epu]
             epu_name = epu.rsplit("/", 1)[-1]
             epu_entry = dict(name=epu_name,
+                             zoo=epu,
                              num_vm=epu_data.get("engine_conf", {}).get("preserve_n", 0),
                              num_cc=epu_data.get("engine_conf", {}).get("provisioner_vars", {}).get("replicas", 0),
                              num_proc=epu_data.get("engine_conf", {}).get("provisioner_vars", {}).get("slots", 0))
@@ -414,6 +415,7 @@ class IonDiagnose(object):
                 epui_data = zoo[epui]
                 epui_name = epui.rsplit("/", 1)[-1]
                 epui_entry = dict(name=epui_name,
+                                  zoo=epui,
                                   epu=epu_name,
                                   public_ip=epui_data["public_ip"],
                                   hostname=epui_data["hostname"],
@@ -436,7 +438,7 @@ class IonDiagnose(object):
         for ee in self._zoo_parents.get(pd_ee_key, []):
             ee_data = zoo[ee]
             ee_name = ee_data["resource_id"]
-            ee_entry = dict(name=ee_name, node_id=ee_data["node_id"], state=ee_data["state"],
+            ee_entry = dict(name=ee_name, node_id=ee_data["node_id"], state=ee_data["state"], zoo=ee,
                             epu=self._epuis[ee_data["node_id"]]["epu"],
                             hostname=self._epuis[ee_data["node_id"]]["hostname"],
                             num_procs=len(ee_data["assigned"]))
@@ -542,11 +544,21 @@ class IonDiagnose(object):
                     self._warn("cei.epu_procs", 2, "EPU instance %s (%s, state=%s) has no processes", epui,
                                epui_data["hostname"], epui_data["state"])
 
+    # -------------------------------------------------------------------------
+
     def print_summary(self):
         print "-----------------------------------------------------"
         print "SUMMARY"
         print " Number of ERR: %s" % len([m for m in self.msgs if m[2] == "ERR"])
         print " Number of WARN: %s" % len([m for m in self.msgs if m[2] == "WARN"])
+
+    def interactive(self):
+        def ts(val):
+            dt = datetime.datetime.fromtimestamp(val)
+            return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        from IPython import embed
+        embed()
 
     def _debug(self, category, indent, msg, *args, **kwargs):
         self._logmsg(category, indent, "DEBUG", msg, *args, **kwargs)
@@ -612,8 +624,7 @@ class IonDiagnose(object):
         self.print_summary()
 
         if self.opts.interactive:
-            from IPython import embed
-            embed()
+            self.interactive()
 
 def entry():
     diag = IonDiagnose()

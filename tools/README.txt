@@ -9,13 +9,18 @@ INSTALLATION
 Requires a tools virtualenv:
 
 mkvirtualenv --no-site-packages tools
+
+pip install -r requirements.txt
+
+
 pip install pyyaml
 pip install requests
 pip install psycopg2
 pip install ipython
 
 
-Put a .cfg (YML syntax) file somewhere. Set sysname plus rabbit/postgres connection info.
+Put a .cfg (YML syntax) file somewhere by copying the template iondiag_example.cfg to iondiag.cfg
+Set sysname plus rabbit/postgres connection info.
 The default config file is ./iondiag.cfg. The -c option allows to set another path.
 
 
