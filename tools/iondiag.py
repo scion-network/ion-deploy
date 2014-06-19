@@ -338,6 +338,7 @@ class IonDiagnose(object):
 
         # Check service queues
         service_queues = [q for q in named_queues if q["name"].split(".", 1)[-1] in self._services]
+        self._service_queues = {q["name"].split(".", 1)[-1]:q for q in service_queues}
         service_queues_cons = [q for q in service_queues if q["consumers"]]
         print " ...found %s service queues (%s with consumers)" % (len(service_queues), len(service_queues_cons))
         for q in service_queues:
@@ -459,7 +460,8 @@ class IonDiagnose(object):
             proc_data = zoo[proc]
             proc_id = proc_data["upid"]
             ee_data = self._ees.get(proc_data["assigned"], {})
-            proc_entry = dict(upid=proc_id, ee=proc_data["assigned"], name=proc_data["name"], num_starts=proc_data["starts"],
+            proc_entry = dict(upid=proc_id, ee=proc_data["assigned"], name=proc_data["name"], zoo=proc,
+                              num_starts=proc_data["starts"],
                               restart_mode=proc_data["restart_mode"], queueing_mode=proc_data["queueing_mode"],
                               state=proc_data["state"],
                               node_id=ee_data.get("node_id", ""),
@@ -543,6 +545,50 @@ class IonDiagnose(object):
                     epui_data = self._epuis[epui]
                     self._warn("cei.epu_procs", 2, "EPU instance %s (%s, state=%s) has no processes", epui,
                                epui_data["hostname"], epui_data["state"])
+
+        # Check HA Agents
+        self._ha_agents = {}
+        running_ha = [self._zoo[self._procs[x]["zoo"]] for x in self._proc_by_type["ha_agent"] if x in self._procs]
+        print " HA-Agents: %s active" % (len(running_ha))
+        for ha_proc in running_ha:
+            ha_cfg = ha_proc["configuration"]["highavailability"]
+            ha_name = ha_cfg["process_definition_name"]
+            ha_entry = dict(zoo=self._procs[ha_proc["upid"]]["zoo"], name=ha_name,
+                            npreserve=ha_cfg["policy"]["parameters"]["preserve_n"])
+            self._ha_agents[ha_name] = ha_entry
+
+            # Check running process instances for HA
+            ha_workers = [pid for pid in self._procs if pid.startswith(ha_name)]
+            ha_entry["num_workers"] = len(ha_workers)
+            ha_entry["workers"] = ha_workers
+
+            num_consumers = -1
+            if hasattr(self, "_service_queues"):
+                queue = self._service_queues.get(ha_name, None)
+                if queue:
+                    num_consumers = queue["consumers"]
+            if len(ha_workers) != ha_entry["npreserve"]:
+                self._warn("cei.ha_worker", 2, "HA %s missing workers: preserve_n=%s, running=%s", ha_name,
+                           ha_entry["npreserve"], len(ha_workers))
+            elif self.opts.verbose:
+                print "  HA %s: preserve_n=%s, running=%s, consumers=%s" % (ha_name, ha_entry["npreserve"],
+                                                                            len(ha_workers), num_consumers)
+            if num_consumers != ha_entry["npreserve"]:
+                if num_consumers == 0:
+                    self._err("cei.ha_worker", 2, "HA %s has NO consumers: preserve_n=%s, consumers=%s", ha_name,
+                               ha_entry["npreserve"], num_consumers)
+                else:
+                    self._warn("cei.ha_worker", 2, "HA %s missing consumers: preserve_n=%s, consumers=%s", ha_name,
+                               ha_entry["npreserve"], num_consumers)
+
+        # Check missing HA (how)
+        if hasattr(self, "_service_queues"):
+            ha_queues = set(self._service_queues.keys())
+            unaccounted_ha = ha_queues - set(self._ha_agents.keys()) - {"process_dispatcher", "provisioner"}
+            for missing_ha in sorted(unaccounted_ha):
+                self._err("cei.ha_missing", 2, "HA-Agent missing: %s", missing_ha)
+
+
 
     # -------------------------------------------------------------------------
 

@@ -2,30 +2,27 @@
 Tools to work with OOINet (ION) system
 ===============================================================================
 
+iondiag.py
+==========
 
 INSTALLATION
-============
+------------
 
 Requires a tools virtualenv:
+> mkvirtualenv --no-site-packages tools
 
-mkvirtualenv --no-site-packages tools
+Install dependencies:
+> pip install -r requirements.txt
 
-pip install -r requirements.txt
-
-
-pip install pyyaml
-pip install requests
-pip install psycopg2
-pip install ipython
-
+CONFIGURATION
+-------------
 
 Put a .cfg (YML syntax) file somewhere by copying the template iondiag_example.cfg to iondiag.cfg
 Set sysname plus rabbit/postgres connection info.
 The default config file is ./iondiag.cfg. The -c option allows to set another path.
 
-
-iondiag.py
-==========
+USAGE
+-----
 
 Start tool with another config file
 > python iondiag.py -c mycfg.cfg
@@ -42,7 +39,25 @@ Verbose output
 Interactive shell
 > python iondiag.py -d sysinfo -l -i
 
+INTERACTIVE MODE
+----------------
 
-Interactive analysis
---------------------
+The shell exposes self variables and functions after the analysis.
 
+Try dir(self)
+
+Members:
+  self._zoo - CEI Zookeeper directory
+  self._procs_by_type
+
+Functions:
+  ts - coverts a system timestamp into a string
+  self._get_zoo_connection
+  self._get_db_connection
+
+Expressions:
+  List EPUIs with last state time and state
+    sorted(["%s/%s: %s %s" % (x["epu"],x["name"], ts(self._zoo[x["zoo"]]["state_time"]), x["state"]) for x in self._epuis.values()])
+
+  Active HA Agents:
+    [self._procs[x] for x in self._proc_by_type["ha_agent"] if x in self._procs]
