@@ -20,17 +20,21 @@ class IonDiagnose(object):
 
     def __init__(self):
         self.sysinfo = {}
+        self.msgs = []
 
     def init_args(self):
-        print "OOINet iondiag"
+        print "====================================================="
+        print "OOINet iondiag -- Diagnostics and Operations Analysis"
+        print "====================================================="
         parser = argparse.ArgumentParser(description="OOINet iondiag")
         parser.add_argument('-c', '--config', type=str, help='File path to config file', default="")
         parser.add_argument('-d', '--info_dir', type=str, help='System info directory')
         parser.add_argument('-l', '--load_info', action='store_true', help="Load from system info directory")
+        parser.add_argument('-L', '--level', type=str, help='Minimum warning level', default="WARN")
         parser.add_argument('-n', '--no_save', action='store_true', help="Don't store system info")
         parser.add_argument('-i', '--interactive', action='store_true', help="Drop into interactive shell")
         parser.add_argument('-v', '--verbose', action='store_true', help="Verbose output")
-        parser.add_argument('-o', '--only_do', type=str, help='Restict diag to D, R, C', default="")
+        parser.add_argument('-o', '--only_do', type=str, help='Restict diag to D, R, C', default="rdc")
         self.opts, self.extra = parser.parse_known_args()
 
     def read_config(self, filename=None):
@@ -48,17 +52,20 @@ class IonDiagnose(object):
             self._errout("No config")
         self.sysname = self.cfg["system"]["name"]
 
+    # -------------------------------------------------------------------------
+
     def get_system_info(self):
+        print "Retrieving system information from operational servers"
         # Read rabbit
-        if not self.opts.only_do or "R" in self.opts.only_do.upper():
+        if "R" in self.opts.only_do.upper():
             self._get_rabbit_info()
 
         # Read resources from postgres
-        if not self.opts.only_do or "D" in self.opts.only_do.upper():
+        if "D" in self.opts.only_do.upper():
             self._get_db_info()
 
         # Read info from CEIctrl
-        if not self.opts.only_do or "C" in self.opts.only_do.upper():
+        if "C" in self.opts.only_do.upper():
             self._get_cei_info()
 
     def _get_rabbit_info(self):
@@ -66,37 +73,39 @@ class IonDiagnose(object):
         from requests.auth import HTTPBasicAuth
         mgmt = self.cfg["container"]["exchange"]["management"]
         url_prefix = "http://%s:%s" % (mgmt["host"], mgmt["port"])
-        print "Getting RabbitMQ info from %s" % url_prefix
+        print " Getting RabbitMQ info from %s" % url_prefix
         rabbit_info = self.sysinfo.setdefault("rabbit", {})
         url1 = url_prefix + "/api/overview"
         resp = requests.get(url1, auth=HTTPBasicAuth(mgmt["username"], mgmt["password"]))
         rabbit_info["overview"] = resp.json()
-        print " ...retrieved %s overview entries" % (len(rabbit_info["overview"]))
+        print "  ...retrieved %s overview entries" % (len(rabbit_info["overview"]))
 
         url2 = url_prefix + "/api/queues"
         resp = requests.get(url2, auth=HTTPBasicAuth(mgmt["username"], mgmt["password"]))
         rabbit_info["queues"] = resp.json()
-        print " ...retrieved %s queues" % (len(rabbit_info["queues"]))
+        print "  ...retrieved %s queues" % (len(rabbit_info["queues"]))
 
         url3 = url_prefix + "/api/connections"
         resp = requests.get(url3, auth=HTTPBasicAuth(mgmt["username"], mgmt["password"]))
         rabbit_info["connections"] = resp.json()
-        print " ...retrieved %s connections" % (len(rabbit_info["connections"]))
+        print "  ...retrieved %s connections" % (len(rabbit_info["connections"]))
 
         url4 = url_prefix + "/api/exchanges"
         resp = requests.get(url4, auth=HTTPBasicAuth(mgmt["username"], mgmt["password"]))
         rabbit_info["exchanges"] = resp.json()
-        print " ...retrieved %s exchanges" % (len(rabbit_info["exchanges"]))
+        print "  ...retrieved %s exchanges" % (len(rabbit_info["exchanges"]))
 
         url5 = url_prefix + "/api/bindings"
         resp = requests.get(url5, auth=HTTPBasicAuth(mgmt["username"], mgmt["password"]))
         rabbit_info["bindings"] = resp.json()
-        print " ...retrieved %s bindings" % (len(rabbit_info["bindings"]))
+        print "  ...retrieved %s bindings" % (len(rabbit_info["bindings"]))
 
     def _get_db_info(self):
+        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
         conn, dsn = self._get_db_connection()
+        db_info = self.sysinfo.setdefault("db", {})
         try:
-            print "Getting DB info from PostgreSQL as:", dsn.rsplit("=", 1)[0] + "=***"
+            print " Getting DB info from PostgreSQL as:", dsn.rsplit("=", 1)[0] + "=***"
             conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
             with conn.cursor() as cur:
                 cur.execute("SELECT id,doc FROM ion_resources")
@@ -105,7 +114,7 @@ class IonDiagnose(object):
                 for row in rows:
                     res_id, res_doc = row[0], row[1]
                     resources[res_id] = res_doc
-                print " ...retrieved %s resources" % (len(resources))
+                print "  ...retrieved %s resources" % (len(resources))
                 db_info["resources"] = resources
 
                 cur.execute("SELECT id,doc FROM ion_resources_dir")
@@ -114,16 +123,14 @@ class IonDiagnose(object):
                 for row in rows:
                     dir_id, dir_doc = row[0], row[1]
                     dir_entries[dir_id] = dir_doc
-                print " ...retrieved %s directory entries" % (len(dir_entries))
+                print "  ...retrieved %s directory entries" % (len(dir_entries))
                 db_info["directory"] = dir_entries
         finally:
             conn.close()
 
     def _get_db_connection(self):
         import psycopg2
-        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-        db_info = self.sysinfo.setdefault("db", {})
         pgcfg = self.cfg["server"]["postgresql"]
         db_name = "%s_%s" % (self.sysname.lower(), pgcfg["database"])
 
@@ -133,6 +140,7 @@ class IonDiagnose(object):
     def _get_cei_info(self):
         cei_info = self.sysinfo.setdefault("cei", {})
 
+        print " Getting CEI info from:", self.cfg["server"]["zookeeper"]["hosts"]
         zk = self._get_zoo_connection()
         start_node = "/" + self.sysname
         if not zk.exists(start_node):
@@ -158,7 +166,7 @@ class IonDiagnose(object):
         for th_info in res_info:
             zoo_info.update(th_info)
         cei_info["zoo"] = zoo_info
-        print " ...retrieved %s CEI nodes" % (len(zoo_info))
+        print "  ...retrieved %s CEI nodes" % (len(zoo_info))
 
     def _get_zoo_connection(self):
         from kazoo.client import KazooClient
@@ -186,6 +194,8 @@ class IonDiagnose(object):
             pass
 
         zk.stop()
+
+    # -------------------------------------------------------------------------
 
     def save_info_files(self):
         if self.opts.info_dir:
@@ -259,17 +269,19 @@ class IonDiagnose(object):
             content[part] = json.loads(json_content)
         print " ...loaded %s (%s bytes)" % (filename, len(json_content))
 
+    # -------------------------------------------------------------------------
 
     def diagnose(self):
+        print "-----------------------------------------------------"
         self._analyze()
 
-        if not self.opts.only_do or "R" in self.opts.only_do.upper():
+        if "R" in self.opts.only_do.upper():
             self._diag_rabbit()
 
-        if not self.opts.only_do or "D" in self.opts.only_do.upper():
+        if "D" in self.opts.only_do.upper():
             self._diag_db()
 
-        if not self.opts.only_do or "C" in self.opts.only_do.upper():
+        if "C" in self.opts.only_do.upper():
             self._diag_cei()
 
     def _analyze(self):
@@ -303,13 +315,14 @@ class IonDiagnose(object):
                     elif "PlatformAgent" in agent_name:
                         agent_type = "PlatformAgent"
                     if de["key"] in self._agents:
-                        print "  WARN: Agent %s multiple times in directory" % de["key"]
+                        self._warn("dir", 2, "Agent %s multiple times in directory", de["key"])
                     self._agents[de["key"]] = dict(key=de["key"], agent_name=agent_name, agent_type=agent_type)
                     if resource_id and resource_id in self._res_by_id:
                         self._agent_by_resid[resource_id] = de["key"]
             print " ...found %s agents in directory (%s for resources)" % (len(self._agents), len(self._agent_by_resid))
 
     def _diag_rabbit(self):
+        print "-----------------------------------------------------"
         print "Analyzing RabbitMQ info..."
         queues = self.sysinfo.get("rabbit", {}).get("queues", {})
         if not queues:
@@ -328,34 +341,41 @@ class IonDiagnose(object):
         print " ...found %s service queues (%s with consumers)" % (len(service_queues), len(service_queues_cons))
         for q in service_queues:
             if not q["consumers"]:
-                print "  WARN: service queue %s has %s consumers" % (q["name"], q["consumers"])
+                self._err("rabbit.svc_queue", 2, "service queue %s has %s consumers", q["name"], q["consumers"])
             elif self.opts.verbose:
                 print "  service queue %s: %s consumers" % (q["name"], q["consumers"])
 
         # Check agent process id queues
         agent_queues = [q for q in named_queues if q["name"].split(".", 1)[-1] in self._agents]
         agent_queues_cons = [q for q in agent_queues if q["consumers"]]
-        print " ...found %s agent process id queues (%s with consumers)" % (len(agent_queues), len(agent_queues_cons))
+        print " ...found %s agent pid queues (%s with consumers)" % (len(agent_queues), len(agent_queues_cons))
         for q in agent_queues:
             if not q["consumers"]:
                 agent_key = q["name"].split(".", 1)[-1]
-                print "  WARN: agent process id queue %s (%s, %s) has %s consumers" % (q["name"], self._agents[agent_key]["agent_type"], self._agents[agent_key]["agent_name"], q["consumers"])
+                self._warn("rabbit.apid_queue", 2, "agent pid queue %s (%s, %s) has %s consumers", q["name"],
+                           self._agents[agent_key]["agent_type"], self._agents[agent_key]["agent_name"], q["consumers"])
 
         # Check agent device id queues
         agent_queues = [q for q in named_queues if q["name"].split(".", 1)[-1] in self._agent_by_resid]
         agent_queues_cons = [q for q in agent_queues if q["consumers"]]
-        print " ...found %s agent device id queues (%s with consumers)" % (len(agent_queues), len(agent_queues_cons))
+        print " ...found %s agent rid queues (%s with consumers)" % (len(agent_queues), len(agent_queues_cons))
         for q in agent_queues:
             if not q["consumers"]:
                 agent_key = self._agent_by_resid[q["name"].split(".", 1)[-1]]
-                print "  WARN: agent device id queue %s (%s, %s) has %s consumers" % (q["name"], self._agents[agent_key]["agent_type"], self._agents[agent_key]["agent_name"], q["consumers"])
+                self._warn("rabbit.arid_queue", 2, "agent rid queue %s (%s, %s) has %s consumers", q["name"],
+                           self._agents[agent_key]["agent_type"], self._agents[agent_key]["agent_name"], q["consumers"])
 
         #pprint.pprint(sorted(q["name"] for q in named_queues))
 
+        # TODO: Check service workers against launch plan (HOW??)
+
     def _diag_db(self):
+        print "-----------------------------------------------------"
         print "Analyzing DB info..."
+        print " (TBD)"
 
     def _diag_cei(self):
+        print "-----------------------------------------------------"
         print "Analyzing CEI info..."
         self._zoo_parents = {}
         self._epus = {}
@@ -402,7 +422,7 @@ class IonDiagnose(object):
                     self._epuis[epui_name] = epui_entry
                     epu_entry.setdefault("instances", {})[epui_name] = epui_entry
                 else:
-                    print "  WARN: EPU instance %s state: %s" % (epui_name, epui_entry["state"])
+                    self._warn("cei.epu_state", 2, "EPU instance %s state: %s", epui_name, epui_entry["state"])
 
             print " EPU %s: %s VM, %s CC, %s Proc. %s slots, %s running instances" % (epu_entry["name"], epu_entry["num_vm"],
                                                                epu_entry["num_cc"], epu_entry["num_proc"], epu_entry["max_slots"],
@@ -420,15 +440,15 @@ class IonDiagnose(object):
                             num_procs=len(ee_data["assigned"]))
             self._ees[ee_name] = ee_entry
             if ee_entry["state"] != "OK":
-                print "  WARN: EE %s state: %s" % (ee_name, ee_entry["state"])
+                self._warn("cei.ee_state", 2, "EE %s state: %s", ee_name, ee_entry["state"])
             if not ee_data["assigned"]:
-                print "  WARN: EE %s %s/%s (%s) has no processes (state %s)" % (ee_name, ee_entry["epu"], ee_entry["node_id"], ee_entry["hostname"], ee_entry["state"])
+                self._warn("cei.ee_assign", 2, "EE %s %s/%s (%s) has no processes (state %s)", ee_name, ee_entry["epu"], ee_entry["node_id"], ee_entry["hostname"], ee_entry["state"])
             total_ee_procs += len(ee_data["assigned"])
             procs_in_ee.extend(x[1] for x in ee_data["assigned"])
 
         print " Number of EE: %s, total processes: %s" % (len(self._ees), total_ee_procs)
         if len(procs_in_ee) != len(set(procs_in_ee)):
-            print " WARN: Process to EE assignment not unique"
+            self._warn("cei.ee_procs", 1, "Process to EE assignment not unique")
 
         pd_procs_key = sys_key + "/pd/processes"
         for proc in self._zoo_parents.get(pd_procs_key, []):
@@ -486,7 +506,7 @@ class IonDiagnose(object):
 
         unaccounted_procs = set(procs_in_ee) - set(self._procs.keys()) - set(self._badprocs.keys())
         if unaccounted_procs:
-            print " WARN: Unaccounted for processes: %s", unaccounted_procs
+            self._warn("cei.pd_procs", 1, "Unaccounted for processes: %s", unaccounted_procs)
 
         for ptype in sorted(self._proc_by_type.keys()):
             procs = self._proc_by_type[ptype]
@@ -502,7 +522,7 @@ class IonDiagnose(object):
                 procs1 = proc_by_state[pst]
                 for pid in procs1:
                     proc_data = self._allprocs[pid]
-                    print "  WARN: Proc %s on %s/%s %s state: %s" % (pid, proc_data["epu"], proc_data["node_id"], proc_data["hostname"], pst)
+                    self._warn("cei.proc_state", 2, "Proc %s on %s/%s %s state: %s", pid, proc_data["epu"], proc_data["node_id"], proc_data["hostname"], pst)
 
         # Check EPU slots vs. used
         for epu in sorted(self._proc_by_epu.keys()):
@@ -517,11 +537,47 @@ class IonDiagnose(object):
                     print "  EPU instance %s: %s total, %s used" % (epui, epui_data["max_slots"], len(epui_procs))
                 else:
                     epui_data = self._epuis[epui]
-                    print "  WARN: EPU instance %s (%s) has no processes" % (epui, epui_data["hostname"])
+                    self._warn("cei.epu_procs", 2, "EPU instance %s (%s) has no processes", epui, epui_data["hostname"])
+
+    def print_summary(self):
+        print "-----------------------------------------------------"
+        print "SUMMARY"
+        print " Number of ERR: %s" % len([m for m in self.msgs if m[2] == "ERR"])
+        print " Number of WARN: %s" % len([m for m in self.msgs if m[2] == "WARN"])
+
+    def _debug(self, category, indent, msg, *args, **kwargs):
+        self._logmsg(category, indent, "DEBUG", msg, *args, **kwargs)
+
+    def _info(self, category, indent, msg, *args, **kwargs):
+        self._logmsg(category, indent, "INFO", msg, *args, **kwargs)
+
+    def _warn(self, category, indent, msg, *args, **kwargs):
+        self._logmsg(category, indent, "WARN", msg, *args, **kwargs)
+
+    def _err(self, category, indent, msg, *args, **kwargs):
+        self._logmsg(category, indent, "ERR", msg, *args, **kwargs)
+
+    def _logmsg(self, category, indent, level, msg, *args, **kwargs):
+        if level and level in {"WARN", "ERR"}:
+            prefix = (" "*indent) + level + ": "
+        else:
+            prefix = (" "*indent)
+        if "%" in msg:
+            msgstr = prefix + msg % args
+        elif args:
+            msgstr = prefix + msg + " " + " ".join(args)
+        else:
+            msgstr = prefix + msg
+        self.msgs.append((category, indent, level, msgstr))
+        if self.opts.level == "ERR":
+            if level == "ERR":
+                print msgstr
+        else:
+            print msgstr
 
     def _errout(self, msg=None):
         if msg:
-            print "ERROR:", msg
+            print "FAIL:", msg
         sys.exit(1)
 
     def start(self):
@@ -537,8 +593,9 @@ class IonDiagnose(object):
             if not self.opts.no_save:
                 self.save_info_files()
 
-
         self.diagnose()
+
+        self.print_summary()
 
         if self.opts.interactive:
             from IPython import embed
