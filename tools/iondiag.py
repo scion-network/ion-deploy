@@ -331,6 +331,7 @@ class IonDiagnose(object):
         named_queues = [q for q in queues if not q["name"].startswith("amq")]
         named_queues_cons = [q for q in named_queues if q["consumers"]]
         print " ...found %s named queues (%s with consumers)" % (len(named_queues), len(named_queues_cons))
+        self._named_queues = {q["name"].split(".", 1)[-1]:q for q in named_queues}
 
         anon_queues = [q for q in queues if q["name"].startswith("amq")]
         anon_queues_cons = [q for q in anon_queues if q["consumers"]]
@@ -466,6 +467,7 @@ class IonDiagnose(object):
                               state=proc_data["state"],
                               node_id=ee_data.get("node_id", ""),
                               epu=ee_data.get("epu", ""),
+                              epui=ee_data.get("epui", ""),
                               hostname=ee_data.get("hostname", ""))
             if proc_entry["state"] == "500-RUNNING":
                 self._procs[proc_id] = proc_entry
@@ -581,7 +583,20 @@ class IonDiagnose(object):
                     self._warn("cei.ha_worker", 2, "HA %s missing consumers: preserve_n=%s, consumers=%s", ha_name,
                                ha_entry["npreserve"], num_consumers)
 
-        # Check missing HA (how)
+                for wpid in ha_entry["workers"]:
+                    hazoo = self._zoo[self._allprocs[wpid]["zoo"]]
+                    wcons = -1
+                    if hasattr(self, "_named_queues"):
+                        proc_queue = self._named_queues.get(wpid)
+                        if proc_queue:
+                            wcons = proc_queue["consumers"]
+                    #print "  ", wpid, hazoo["state"], self.ts(hazoo["dispatch_times"][-1]), wcons
+                    if not wcons:
+                        wproc_entry = self._allprocs[wpid]
+                        self._warn("cei", 3, "Worker %s has no consumer (%s/%s %s)", wpid, wproc_entry["epu"],
+                                   wproc_entry["node_id"], wproc_entry["hostname"])
+
+        # Check missing HA based on defined service queues
         if hasattr(self, "_service_queues"):
             ha_queues = set(self._service_queues.keys())
             unaccounted_ha = ha_queues - set(self._ha_agents.keys()) - {"process_dispatcher", "provisioner"}
@@ -598,10 +613,13 @@ class IonDiagnose(object):
         print " Number of ERR: %s" % len([m for m in self.msgs if m[2] == "ERR"])
         print " Number of WARN: %s" % len([m for m in self.msgs if m[2] == "WARN"])
 
+
+    def ts(self, val):
+        dt = datetime.datetime.fromtimestamp(val)
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+
     def interactive(self):
-        def ts(val):
-            dt = datetime.datetime.fromtimestamp(val)
-            return dt.strftime("%Y-%m-%d %H:%M:%S")
+        ts = self.ts
 
         from IPython import embed
         embed()
