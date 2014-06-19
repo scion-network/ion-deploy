@@ -16,6 +16,7 @@ import yaml
 import sys
 import Queue
 
+
 class IonDiagnose(object):
 
     def __init__(self):
@@ -389,6 +390,7 @@ class IonDiagnose(object):
         self._proc_by_epu = {}
         self._proc_by_epui = {}
         zoo = self.sysinfo.get("cei", {}).get("zoo", None)
+        self._zoo = zoo
         if not zoo:
             return
         zoo_parents = {}
@@ -537,7 +539,8 @@ class IonDiagnose(object):
                     print "  EPU instance %s: %s total, %s used" % (epui, epui_data["max_slots"], len(epui_procs))
                 else:
                     epui_data = self._epuis[epui]
-                    self._warn("cei.epu_procs", 2, "EPU instance %s (%s) has no processes", epui, epui_data["hostname"])
+                    self._warn("cei.epu_procs", 2, "EPU instance %s (%s, state=%s) has no processes", epui,
+                               epui_data["hostname"], epui_data["state"])
 
     def print_summary(self):
         print "-----------------------------------------------------"
@@ -557,6 +560,8 @@ class IonDiagnose(object):
     def _err(self, category, indent, msg, *args, **kwargs):
         self._logmsg(category, indent, "ERR", msg, *args, **kwargs)
 
+    COLOR_MAP = {"ERR": 31, "WARN": 33}
+
     def _logmsg(self, category, indent, level, msg, *args, **kwargs):
         if level and level in {"WARN", "ERR"}:
             prefix = (" "*indent) + level + ": "
@@ -569,7 +574,16 @@ class IonDiagnose(object):
         else:
             msgstr = prefix + msg
         self.msgs.append((category, indent, level, msgstr))
-        if self.opts.level == "ERR":
+
+        # Print output
+        color = self.COLOR_MAP.get(level, "")
+        if color:
+            msgstr = "\033[1m\033[%sm%s\033[0m" % (color, msgstr)
+
+        if self.opts.level == "CRIT":
+            if level in ("ERR", "CRIT"):
+                print msgstr
+        elif self.opts.level == "ERR":
             if level == "ERR":
                 print msgstr
         else:

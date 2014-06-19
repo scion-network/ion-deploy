@@ -12,6 +12,8 @@ mkvirtualenv --no-site-packages tools
 pip install pyyaml
 pip install requests
 pip install psycopg2
+pip install ipython
+
 
 Put a .cfg (YML syntax) file somewhere. Set sysname plus rabbit/postgres connection info.
 The default config file is ./iondiag.cfg. The -c option allows to set another path.
@@ -31,3 +33,11 @@ Run diagnosis based on content in ./sysinfo dir
 
 Verbose output
 > python iondiag.py -v
+
+Interactive shell
+> python iondiag.py -d sysinfo -l -i
+
+
+Interactive analysis
+--------------------
+
