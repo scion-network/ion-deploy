@@ -1,3 +1,4 @@
 *.DS_Store
 tools/iondiag.cfg
 tools/sysinfo*
+tools/*.cfg

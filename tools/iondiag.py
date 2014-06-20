@@ -297,6 +297,7 @@ class IonDiagnose(object):
 
         self._agents = {}
         self._agent_by_resid = {}
+        self._agent_by_type = {}
         directory = self.sysinfo.get("db", {}).get("directory", None)
         if directory:
             for de in directory.values():
@@ -317,7 +318,9 @@ class IonDiagnose(object):
                         agent_type = "PlatformAgent"
                     if de["key"] in self._agents:
                         self._warn("dir", 2, "Agent %s multiple times in directory", de["key"])
-                    self._agents[de["key"]] = dict(key=de["key"], agent_name=agent_name, agent_type=agent_type)
+                    agent_entry = dict(key=de["key"], agent_name=agent_name, agent_type=agent_type)
+                    self._agents[de["key"]] = agent_entry
+                    self._agent_by_type.setdefault(agent_type, []).append(agent_name)
                     if resource_id and resource_id in self._res_by_id:
                         self._agent_by_resid[resource_id] = de["key"]
             print " ...found %s agents in directory (%s for resources)" % (len(self._agents), len(self._agent_by_resid))
@@ -325,9 +328,21 @@ class IonDiagnose(object):
     def _diag_rabbit(self):
         print "-----------------------------------------------------"
         print "Analyzing RabbitMQ info..."
-        queues = self.sysinfo.get("rabbit", {}).get("queues", {})
-        if not queues:
+        rabbit = self.sysinfo.get("rabbit", {})
+        if not rabbit:
             return
+
+        self._rabbit_max_ts = rabbit.get("overview", {}).get("message_stats", {}).get("deliver_details", {}).get("last_event", 0)
+        conns = rabbit.get("connections", [])
+        self._active_conns = [c for c in conns if c["recv_oct_details"]["last_event"] >= (self._rabbit_max_ts - 60*60*1000)]
+        conn_hosts = {c["peer_address"] for c in self._active_conns}
+        print " ...found %s connections, %s active, to %s hosts" % (len(conns), len(self._active_conns), len(conn_hosts))
+        if self.opts.verbose:
+            inactive_conns = [c for c in conns if c["recv_oct_details"]["last_event"] < (self._rabbit_max_ts - 60*60*1000)]
+            inactive_hosts = {c["peer_address"] for c in inactive_conns}
+            print "  Inactive hosts:", ", ".join(c for c in inactive_hosts)
+
+        queues = rabbit.get("queues", {})
         named_queues = [q for q in queues if not q["name"].startswith("amq")]
         named_queues_cons = [q for q in named_queues if q["consumers"]]
         print " ...found %s named queues (%s with consumers)" % (len(named_queues), len(named_queues_cons))
@@ -370,7 +385,9 @@ class IonDiagnose(object):
 
         #pprint.pprint(sorted(q["name"] for q in named_queues))
 
-        # TODO: Check service workers against launch plan (HOW??)
+        for q in self._named_queues.values():
+            if q["messages"] > 2:
+                self._warn("rabbit.qu_msgs", 2, "Queue %s has unconsumed messages: %s (idle since %s)", q["name"], q["messages"], q.get("idle_since", ""))
 
     def _diag_db(self):
         print "-----------------------------------------------------"
@@ -401,6 +418,7 @@ class IonDiagnose(object):
             zoo_parents.setdefault(par, []).append(key)
         self._zoo_parents = zoo_parents
 
+        # ---------- EPU + EPU instances
         sys_key = "/" + self.sysname
         epum_key = sys_key + "/epum/domains/cc"
         for epu in self._zoo_parents.get(epum_key, []):
@@ -434,6 +452,7 @@ class IonDiagnose(object):
                                                                epu_entry["num_cc"], epu_entry["num_proc"], epu_entry["max_slots"],
                                                                len(epu_entry.get("instances", {})))
 
+        # ---------- Execution Engines
         total_ee_procs = 0
         procs_in_ee = []
         pd_ee_key = sys_key + "/pd/resources"
@@ -448,7 +467,7 @@ class IonDiagnose(object):
             if ee_entry["state"] != "OK":
                 self._warn("cei.ee_state", 2, "EE %s state: %s", ee_name, ee_entry["state"])
             if not ee_data["assigned"]:
-                self._warn("cei.ee_assign", 2, "EE %s %s/%s (%s) has no processes (state %s)", ee_name, ee_entry["epu"], ee_entry["node_id"], ee_entry["hostname"], ee_entry["state"])
+                self._info("cei.ee_assign", 2, "EE %s %s/%s (%s) has no processes (state %s)", ee_name, ee_entry["epu"], ee_entry["node_id"], ee_entry["hostname"], ee_entry["state"])
             total_ee_procs += len(ee_data["assigned"])
             procs_in_ee.extend(x[1] for x in ee_data["assigned"])
 
@@ -456,12 +475,13 @@ class IonDiagnose(object):
         if len(procs_in_ee) != len(set(procs_in_ee)):
             self._warn("cei.ee_procs", 1, "Process to EE assignment not unique")
 
+        # ---------- Processes (generic)
         pd_procs_key = sys_key + "/pd/processes"
         for proc in self._zoo_parents.get(pd_procs_key, []):
             proc_data = zoo[proc]
             proc_id = proc_data["upid"]
             ee_data = self._ees.get(proc_data["assigned"], {})
-            proc_entry = dict(upid=proc_id, ee=proc_data["assigned"], name=proc_data["name"], zoo=proc,
+            proc_entry = dict(upid=proc_id, ee=proc_data["assigned"], name=proc_data["name"] or "", zoo=proc,
                               num_starts=proc_data["starts"],
                               restart_mode=proc_data["restart_mode"], queueing_mode=proc_data["queueing_mode"],
                               state=proc_data["state"],
@@ -509,8 +529,9 @@ class IonDiagnose(object):
                 self._proc_by_type.setdefault("bootstrap", []).append(proc_id)
             else:
                 print "  Cannot categorize process %s %s" % (proc_id, proc_entry["name"])
+                self._proc_by_type.setdefault("unknown", []).append(proc_id)
 
-        print " ...found %s EPUs, %s EEs, %s processes" % (len(self._epus), len(self._ees), len(self._procs))
+        print " ...found %s EPUs, %s EPUIs, %s EEs, %s processes, %s process types" % (len(self._epus), len(self._epuis), len(self._ees), len(self._procs), len(self._proc_by_type))
 
         unaccounted_procs = set(procs_in_ee) - set(self._procs.keys()) - set(self._badprocs.keys())
         if unaccounted_procs:
@@ -532,21 +553,31 @@ class IonDiagnose(object):
                     proc_data = self._allprocs[pid]
                     self._warn("cei.proc_state", 2, "Proc %s on %s/%s %s state: %s", pid, proc_data["epu"], proc_data["node_id"], proc_data["hostname"], pst)
 
-        # Check EPU slots vs. used
+        # ---------- EPU Usage
+        tainted_epis = set()
         for epu in sorted(self._proc_by_epu.keys()):
             epu_procs = self._proc_by_epu[epu]
             epu_data = self._epus[epu]
             print " EPU %s: %s total, %s used" % (epu, epu_data["max_slots"], len(epu_procs))
 
             for epui in sorted(epu_data["instances"]):
-                if epui in self._proc_by_epui:
-                    epui_procs = self._proc_by_epui[epui]
-                    epui_data = self._epuis[epui]
-                    print "  EPU instance %s: %s total, %s used" % (epui, epui_data["max_slots"], len(epui_procs))
-                else:
-                    epui_data = self._epuis[epui]
-                    self._warn("cei.epu_procs", 2, "EPU instance %s (%s, state=%s) has no processes", epui,
+                epui_data = self._epuis[epui]
+                epui_ip = epui_data["public_ip"]
+                host_conns = [c for c in self._active_conns if c["peer_address"] == epui_ip] if hasattr(self, "_active_conns") else -1
+                epui_procs = self._proc_by_epui.get(epui, {})
+                print "  EPU instance %s (%s, %s): %s total, %s used, %s rabbit connections" % (epui,
+                            epui_data["hostname"], epui_data["public_ip"], epui_data["max_slots"], len(epui_procs), len(host_conns))
+
+                if not host_conns:
+                    self._warn("cei.epui_conns", 3, "EPU instance %s (%s, state=%s) has no active rabbit connections", epui,
+                           epui_data["hostname"], epui_data["state"])
+                    tainted_epis.add(epui)
+                if epui not in self._proc_by_epui:
+                    self._info("cei.epui_procs", 3, "EPU instance %s (%s, state=%s) has no processes", epui,
                                epui_data["hostname"], epui_data["state"])
+
+        if tainted_epis:
+            self._err("cei.epui_bad", 1, "Found %s bad EPU instances: %s", len(tainted_epis), ", ".join(e for e in sorted(tainted_epis)))
 
         # Check HA Agents
         self._ha_agents = {}
@@ -575,13 +606,13 @@ class IonDiagnose(object):
             elif self.opts.verbose:
                 print "  HA %s: preserve_n=%s, running=%s, consumers=%s" % (ha_name, ha_entry["npreserve"],
                                                                             len(ha_workers), num_consumers)
-            if num_consumers != ha_entry["npreserve"]:
+            if num_consumers != -1 and num_consumers != ha_entry["npreserve"]:
                 if num_consumers == 0:
-                    self._err("cei.ha_worker", 2, "HA %s has NO consumers: preserve_n=%s, consumers=%s", ha_name,
-                               ha_entry["npreserve"], num_consumers)
+                    self._err("cei.ha_worker", 2, "HA %s has NO consumers: preserve_n=%s, running=%s, consumers=%s", ha_name,
+                               ha_entry["npreserve"], len(ha_workers), num_consumers)
                 else:
-                    self._warn("cei.ha_worker", 2, "HA %s missing consumers: preserve_n=%s, consumers=%s", ha_name,
-                               ha_entry["npreserve"], num_consumers)
+                    self._warn("cei.ha_worker", 2, "HA %s missing consumers: preserve_n=%s, running=%s, consumers=%s", ha_name,
+                               ha_entry["npreserve"], len(ha_workers), num_consumers)
 
                 for wpid in ha_entry["workers"]:
                     hazoo = self._zoo[self._allprocs[wpid]["zoo"]]
@@ -603,18 +634,50 @@ class IonDiagnose(object):
             for missing_ha in sorted(unaccounted_ha):
                 self._err("cei.ha_missing", 2, "HA-Agent missing: %s", missing_ha)
 
+        # Check ingestion
+        running_ingest = [self._zoo[self._procs[x]["zoo"]] for x in self._proc_by_type["ingest_worker"] if x in self._procs]
+        print " Ingestion workers: %s active" % (len(running_ingest))
+        for ing_proc in running_ingest:
+            ing_pid = ing_proc["upid"]
+            num_consumers = -1
+            if hasattr(self, "_named_queues"):
+                queue = self._named_queues.get(ing_pid, None)
+                if queue:
+                    num_consumers = queue["consumers"]
+            if num_consumers == 0:
+                iproc_entry = self._allprocs[ing_pid]
+                self._warn("cei.ing_worker", 2, "Ingestion worker %s has NO consumer (%s/%s %s)", ing_pid, iproc_entry["epu"],
+                                   iproc_entry["node_id"], iproc_entry["hostname"])
 
+        # Check MI agents
+        agent_pids = self._proc_by_type.get("instrument_agent", []) + self._proc_by_type.get("platform_agent", []) + self._proc_by_type.get("dataset_agent", [])
+        running_agent = [self._zoo[self._procs[x]["zoo"]] for x in agent_pids if x in self._procs]
+        print " Agents: %s active" % (len(running_agent))
+        for ag_proc in running_agent:
+            ag_pid = ag_proc["upid"]
+            num_consumers = -1
+            if hasattr(self, "_named_queues"):
+                queue = self._named_queues.get(ag_pid, None)
+                if queue:
+                    num_consumers = queue["consumers"]
+            if num_consumers == 0:
+                aproc_entry = self._allprocs[ag_pid]
+                self._warn("cei.ing_worker", 2, "Agent %s has NO consumer (%s/%s %s)", ag_pid, aproc_entry["epu"],
+                                   aproc_entry["node_id"], aproc_entry["hostname"])
 
     # -------------------------------------------------------------------------
 
     def print_summary(self):
         print "-----------------------------------------------------"
         print "SUMMARY"
-        print " Number of ERR: %s" % len([m for m in self.msgs if m[2] == "ERR"])
+        print " Number of ERR:  %s" % len([m for m in self.msgs if m[2] == "ERR"])
         print " Number of WARN: %s" % len([m for m in self.msgs if m[2] == "WARN"])
 
 
     def ts(self, val):
+        val = int(val)
+        if len(str(val)) == 13:
+            val = val / 1000
         dt = datetime.datetime.fromtimestamp(val)
         return dt.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -636,13 +699,13 @@ class IonDiagnose(object):
     def _err(self, category, indent, msg, *args, **kwargs):
         self._logmsg(category, indent, "ERR", msg, *args, **kwargs)
 
-    COLOR_MAP = {"ERR": 31, "WARN": 33}
+    COLOR_MAP = {"ERR": 31, "WARN": 33, "INFO": 32}
 
     def _logmsg(self, category, indent, level, msg, *args, **kwargs):
-        if level and level in {"WARN", "ERR"}:
+        if level and level in {"WARN", "ERR", "INFO"}:
             prefix = (" "*indent) + level + ": "
         else:
-            prefix = (" "*indent)
+            prefix = " "*indent
         if "%" in msg:
             msgstr = prefix + msg % args
         elif args:

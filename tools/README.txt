@@ -61,3 +61,6 @@ Expressions:
 
   Active HA Agents:
     [self._procs[x] for x in self._proc_by_type["ha_agent"] if x in self._procs]
+
+  Queues with messages:
+    ["%s:%s" % (q["name"], q["messages"]) for q in self._named_queues.values() if q["messages"]>2]
