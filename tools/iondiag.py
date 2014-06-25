@@ -385,9 +385,14 @@ class IonDiagnose(object):
 
         #pprint.pprint(sorted(q["name"] for q in named_queues))
 
+        total_messages = 0
         for q in self._named_queues.values():
             if q["messages"] > 2:
                 self._warn("rabbit.qu_msgs", 2, "Queue %s has unconsumed messages: %s (idle since %s)", q["name"], q["messages"], q.get("idle_since", ""))
+            total_messages += q["messages"]
+        if total_messages > 500:
+            self._warn("rabbit.waiting_msgs", 1, "System has %s unconsumed messages", total_messages)
+
 
     def _diag_db(self):
         print "-----------------------------------------------------"
@@ -434,12 +439,13 @@ class IonDiagnose(object):
             for epui in self._zoo_parents.get(epu + "/instances", []):
                 epui_data = zoo[epui]
                 epui_name = epui.rsplit("/", 1)[-1]
+
                 epui_entry = dict(name=epui_name,
                                   zoo=epui,
                                   epu=epu_name,
-                                  public_ip=epui_data["public_ip"],
-                                  hostname=epui_data["hostname"],
-                                  state=epui_data["state"],
+                                  public_ip=epui_data.get("public_ip", "ERR"),
+                                  hostname=epui_data.get("hostname", "ERR"),
+                                  state=epui_data.get("state", "ERR"),
                                   max_slots=epu_entry["num_cc"]*epu_entry["num_proc"])
                 #print "  EPUI %s: %s %s" % (epui_entry["name"], epui_entry["public_ip"], epui_entry["state"], )
                 if epui_entry["state"] == "600-RUNNING":
@@ -459,9 +465,10 @@ class IonDiagnose(object):
         for ee in self._zoo_parents.get(pd_ee_key, []):
             ee_data = zoo[ee]
             ee_name = ee_data["resource_id"]
+            epui_data = self._epuis.get(ee_data["node_id"], {})
             ee_entry = dict(name=ee_name, node_id=ee_data["node_id"], state=ee_data["state"], zoo=ee,
-                            epu=self._epuis[ee_data["node_id"]]["epu"],
-                            hostname=self._epuis[ee_data["node_id"]]["hostname"],
+                            epu=epui_data.get("epu", "ERR"),
+                            hostname=epui_data.get("hostname", "ERR"),
                             num_procs=len(ee_data["assigned"]))
             self._ees[ee_name] = ee_entry
             if ee_entry["state"] != "OK":
@@ -557,10 +564,10 @@ class IonDiagnose(object):
         tainted_epis = set()
         for epu in sorted(self._proc_by_epu.keys()):
             epu_procs = self._proc_by_epu[epu]
-            epu_data = self._epus[epu]
-            print " EPU %s: %s total, %s used" % (epu, epu_data["max_slots"], len(epu_procs))
+            epu_data = self._epus.get(epu, {})
+            print " EPU %s: %s total, %s used" % (epu, epu_data.get("max_slots", "ERR"), len(epu_procs))
 
-            for epui in sorted(epu_data["instances"]):
+            for epui in sorted(epu_data.get("instances", [])):
                 epui_data = self._epuis[epui]
                 epui_ip = epui_data["public_ip"]
                 host_conns = [c for c in self._active_conns if c["peer_address"] == epui_ip] if hasattr(self, "_active_conns") else -1
