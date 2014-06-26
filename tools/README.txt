@@ -33,6 +33,9 @@ Retrieve system info and store/overwrite in ./sysinfo dir
 Run diagnosis based on content in ./sysinfo dir
 > python iondiag.py -d sysinfo -l
 
+Retrieve rabbit info only and get rest from content in ./sysinfo dir if existing
+> python iondiag.py -d sysinfo -R r
+
 Verbose output
 > python iondiag.py -v
 

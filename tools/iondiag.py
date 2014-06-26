@@ -35,7 +35,8 @@ class IonDiagnose(object):
         parser.add_argument('-n', '--no_save', action='store_true', help="Don't store system info")
         parser.add_argument('-i', '--interactive', action='store_true', help="Drop into interactive shell")
         parser.add_argument('-v', '--verbose', action='store_true', help="Verbose output")
-        parser.add_argument('-o', '--only_do', type=str, help='Restict diag to D, R, C', default="rdc")
+        parser.add_argument('-R', '--only_retrieve', type=str, help='Restict retrieve to D, R, C', default="rdc")
+        parser.add_argument('-O', '--only_do', type=str, help='Restict diag to D, R, C', default="rdc")
         self.opts, self.extra = parser.parse_known_args()
 
     def read_config(self, filename=None):
@@ -58,15 +59,15 @@ class IonDiagnose(object):
     def get_system_info(self):
         print "Retrieving system information from operational servers"
         # Read rabbit
-        if "R" in self.opts.only_do.upper():
+        if "R" in self.opts.only_retrieve.upper():
             self._get_rabbit_info()
 
         # Read resources from postgres
-        if "D" in self.opts.only_do.upper():
+        if "D" in self.opts.only_retrieve.upper():
             self._get_db_info()
 
         # Read info from CEIctrl
-        if "C" in self.opts.only_do.upper():
+        if "C" in self.opts.only_retrieve.upper():
             self._get_cei_info()
 
     def _get_rabbit_info(self):
@@ -150,7 +151,7 @@ class IonDiagnose(object):
 
         self.queue = Queue.Queue()
         self.queue.put(start_node)
-        num_threads = 20
+        num_threads = 25
         res_info, threads = [], []
         for i in range(num_threads):
             th_info = {}
@@ -262,6 +263,9 @@ class IonDiagnose(object):
     def _read_file(self, prefix, part, content):
         if content is None:
             return
+        if part in content and content[part]:
+            # We don't overwrite retrieved info
+            return
         filename = "%s_%s.json" % (prefix, part)
         if not os.path.exists(filename):
             return
@@ -279,11 +283,12 @@ class IonDiagnose(object):
         if "R" in self.opts.only_do.upper():
             self._diag_rabbit()
 
+        if "C" in self.opts.only_do.upper():
+            self._diag_cei()
+
         if "D" in self.opts.only_do.upper():
             self._diag_db()
 
-        if "C" in self.opts.only_do.upper():
-            self._diag_cei()
 
     def _analyze(self):
         print "Analyzing system info"
@@ -390,14 +395,8 @@ class IonDiagnose(object):
             if q["messages"] > 2:
                 self._warn("rabbit.qu_msgs", 2, "Queue %s has unconsumed messages: %s (idle since %s)", q["name"], q["messages"], q.get("idle_since", ""))
             total_messages += q["messages"]
-        if total_messages > 500:
+        if total_messages > 200:
             self._warn("rabbit.waiting_msgs", 1, "System has %s unconsumed messages", total_messages)
-
-
-    def _diag_db(self):
-        print "-----------------------------------------------------"
-        print "Analyzing DB info..."
-        print " (TBD)"
 
     def _diag_cei(self):
         print "-----------------------------------------------------"
@@ -452,7 +451,7 @@ class IonDiagnose(object):
                     self._epuis[epui_name] = epui_entry
                     epu_entry.setdefault("instances", {})[epui_name] = epui_entry
                 else:
-                    self._warn("cei.epu_state", 2, "EPU instance %s state: %s", epui_name, epui_entry["state"])
+                    self._warn("cei.epu_state", 2, "EPU instance %s (%s) state: %s", epui_name, epui_entry["hostname"], epui_entry["state"])
 
             print " EPU %s: %s VM, %s CC, %s Proc. %s slots, %s running instances" % (epu_entry["name"], epu_entry["num_vm"],
                                                                epu_entry["num_cc"], epu_entry["num_proc"], epu_entry["max_slots"],
@@ -565,7 +564,9 @@ class IonDiagnose(object):
         for epu in sorted(self._proc_by_epu.keys()):
             epu_procs = self._proc_by_epu[epu]
             epu_data = self._epus.get(epu, {})
-            print " EPU %s: %s total, %s used" % (epu, epu_data.get("max_slots", "ERR"), len(epu_procs))
+            print " EPU %s: %s total (%s VM x %s CC x %s slots), %s used." % (epu, epu_data.get("max_slots", "ERR"),
+                    epu_data.get("num_vm", "ERR"), epu_data.get("num_cc", "ERR"), epu_data.get("num_proc", "ERR"),
+                    len(epu_procs))
 
             for epui in sorted(epu_data.get("instances", [])):
                 epui_data = self._epuis[epui]
@@ -672,6 +673,11 @@ class IonDiagnose(object):
                 self._warn("cei.ing_worker", 2, "Agent %s has NO consumer (%s/%s %s)", ag_pid, aproc_entry["epu"],
                                    aproc_entry["node_id"], aproc_entry["hostname"])
 
+    def _diag_db(self):
+        print "-----------------------------------------------------"
+        print "Analyzing DB info..."
+        print " (TBD)"
+
     # -------------------------------------------------------------------------
 
     def print_summary(self):
@@ -750,6 +756,10 @@ class IonDiagnose(object):
 
         else:
             self.get_system_info()
+            # Fill any gaps with existing info
+            if self.opts.info_dir and os.path.exists(self.opts.info_dir):
+                self.read_info_files()
+
             if not self.opts.no_save:
                 self.save_info_files()
 
